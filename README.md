@@ -3,9 +3,9 @@
 ApiCo Project for executing firmware update over the air
 ## Description
 
-API written in C++ using PlatformIO
-Depends on ESPAsyncWebServer
-Login to execute Over The Air Update
+* API written in C++ using PlatformIO
+* Depends on ESPAsyncWebServer
+* Login to execute Over The Air Update
 
 ## Getting Started
 
