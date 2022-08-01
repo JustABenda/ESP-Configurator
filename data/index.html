@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="icon" href="./imgs/favicon.png">
+        <link rel="stylesheet" href="./style.css">
+        <script src="./script.js"></script>
+        <meta charset="UTF-8"/>
+        <meta name="description" content="Updating firmware"/>
+        <meta name="author" content="Filip Benda"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+        <title>Networks</title>
+    </head>
+    <body onload="ScanNetworks('');">
+        <form id="center_form">
+            <h1>Available Networks<input type="button" id="submit" value="Scan" onclick="ScanConnected();"></h1><hr>
+            <span id="wifi_box">
+            </span>
+            <input type="button" class="button" value="Update Firmware" onclick="Send('/update_firmware')"><input type="button" class="button" value="Disconnect" onclick="Send('/disconnect');ScanNetworks('');"><input type="button" class="button" value="Preferences" onclick="window.location.href = './prefs?mdp=' + findGetParameter('mdp');">
+        </form>
+    </body>
+</html>

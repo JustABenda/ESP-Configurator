@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="icon" href="./imgs/favicon.png">
+        <link rel="stylesheet" href="./style.css">
+        <script src="./script.js"></script>
+        <meta charset="UTF-8"/>
+        <meta name="description" content="Login to update firmware"/>
+        <meta name="author" content="Filip Benda"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+        <title>Login</title>
+    </head>
+    <body onload="init();">
+        <center><h1><span id="title">Title</span></h1></center>
+        <form id="login_form">
+            <input type="username" id="username" placeholder="Enter Username" class="textbox">
+            <input type="password" id="password" placeholder="Enter Password" class="textbox">
+            <input type="button" id="submit" value="Login" onclick="Login()">
+        </form>
+    </body>
+</html>
