@@ -13,8 +13,6 @@ void setup()
 {
   Serial.begin(115200);
   Serial.println();
-  Serial.println("SSID -> esp32 " + WiFi.macAddress());
-  Serial.println("Password -> root");
   Configurator::FIRMWARE_VERSION = "v0.0.1";
   Configurator::Init("ESP Configurator");
 }

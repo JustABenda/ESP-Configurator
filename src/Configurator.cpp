@@ -1,27 +1,27 @@
 #include "Configurator.hpp"
-
+// Initialize Static Variables
 AsyncWebServer *Configurator::server;
 std::string Configurator::title;
 std::string Configurator::md5_pwd;
 std::string Configurator::FIRMWARE_VERSION = "v0.0.0";
 Preferences *Configurator::preferences;
-void Configurator::Init(string title_)
+void Configurator::Init(string title_) // Runs AsyncWebServer and handles communication
 {
-    Configurator::preferences = new Preferences();
+    Configurator::preferences = new Preferences(); // Flash Data
     Configurator::title = title_;
-    IPAddress localIP(192, 168, 4, 22);
+    IPAddress localIP(192, 168, 4, 22); // Configuring ip that can be accessed on AP mode
     IPAddress gateway(192, 168, 4, 9);
     IPAddress subnet(255, 255, 255, 0);
     WiFi.mode(WIFI_AP_STA);
     WiFi.disconnect();
-    WiFi.softAPConfig(localIP, gateway, subnet);
-    std::string ap_password = Configurator::ReadDataPrefs("ap_password", "rootroot");
-    WiFi.softAP((String("ESP32 ") + WiFi.macAddress()).c_str(), ap_password.c_str());
-    if (!SPIFFS.begin())
+    WiFi.softAPConfig(localIP, gateway, subnet);                                                                                 // Configure AP
+    WiFi.softAP((String("ESP32 ") + WiFi.macAddress()).c_str(), Configurator::ReadDataPrefs("ap_password", "rootroot").c_str()); // Starts AP
+    if (!SPIFFS.begin())                                                                                                         // WebServer files
     {
-        Serial.println("Failed to mount device filesystem");
+        Serial.println("Failed to mount device filesystem"); // Failed
     }
-    Configurator::server = new AsyncWebServer(80);
+    Configurator::server = new AsyncWebServer(80); // Server Constructor
+    // Requests
     Configurator::server->on("/", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send(SPIFFS, "/login.html", "text/html"); });
     Configurator::server->on("/title", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -46,37 +46,22 @@ void Configurator::Init(string title_)
                              { request->send(SPIFFS, "/imgs/signal3.png", "image/png"); });
     Configurator::server->on("/imgs/signal4.png", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send(SPIFFS, "/imgs/signal4.png", "image/png"); });
-    Configurator::server->on("/login", HTTP_GET, [](AsyncWebServerRequest *request)
+    Configurator::server->on("/login", HTTP_GET, [](AsyncWebServerRequest *request) // Handles Login
                              {
         if(request->hasParam("uname") && request->hasParam("pwd")){
-            String _uname = request->getParam("uname")->value();
-            String _pwd = request->getParam("pwd")->value();
-            String _pwd_md5 = request->getParam("mdp")->value();
-            char *key_ = (char*)(_uname.c_str());
-            char *value_ = (char*)(_pwd.c_str());
-            char *pwd_md5_ = (char*)(_pwd_md5.c_str());
-            std::string uname;
-            std::string pwd;
-            std::string md5;
-            uname = (std::string)key_;
-            pwd = (std::string)value_;
-            md5 = (std::string)pwd_md5_;
-            if (uname == (std::string)Configurator::ReadDataPrefs("username", "admin") && pwd == (std::string)Configurator::ReadDataPrefs("password", "admin"))
+            std::string uname = (std::string)request->getParam("uname")->value().c_str();
+            std::string pwd = (std::string)request->getParam("pwd")->value().c_str();
+            std::string md5 = (std::string)request->getParam("mdp")->value().c_str();
+            if (uname == Configurator::ReadDataPrefs("username", "admin") && pwd == Configurator::ReadDataPrefs("password", "admin"))
             {request->send_P(200, "text/plain", "success");Configurator::md5_pwd = md5;}
             else request->send_P(200, "text/plain", "failure");
         }else request->send_P(200, "text/plain", "failure"); });
     Configurator::server->on("/connect", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
         if(request->hasParam("ssid") && request->hasParam("pwd") && request->hasParam("mdp")){
-            String _ssid = request->getParam("ssid")->value();
-            String _pwd = request->getParam("pwd")->value();
+            std::string ssid = (std::string)request->getParam("ssid")->value().c_str();
+            std::string pwd = (std::string)request->getParam("pwd")->value().c_str();
             std::string md5 = (std::string)request->getParam("mdp")->value().c_str();
-            char *ssid_ = (char*)(_ssid.c_str());
-            char *value_ = (char*)(_pwd.c_str());
-            std::string ssid;
-            std::string pwd;
-            ssid = (std::string)ssid_;
-            pwd = (std::string)value_;
             WiFi.begin(ssid.c_str(), pwd.c_str());
             unsigned long startTime = millis();
             while(WiFi.status() != WL_CONNECTED && millis() - startTime < 2000) delay(100);
@@ -96,27 +81,19 @@ void Configurator::Init(string title_)
     Configurator::server->on("/index", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
         if(request->hasParam("mdp")){
-            String _md5 = request->getParam("mdp")->value();
-            char *md5_ = (char*)(_md5.c_str());
-            std::string md5;
-            md5 = (std::string)md5_;
+            std::string md5 = (std::string)request->getParam("mdp")->value().c_str();
             if(Configurator::md5_pwd == md5) request->send(SPIFFS, "/index.html", "text/html");
             else request->send(SPIFFS, "/login.html", "text/html");
         }else request->send(SPIFFS, "/login.html", "text/html"); });
     Configurator::server->on("/prefs", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
         if(request->hasParam("mdp")){
-            String _md5 = request->getParam("mdp")->value();
-            char *md5_ = (char*)(_md5.c_str());
-            std::string md5;
-            md5 = (std::string)md5_;
+            std::string md5 = (std::string)request->getParam("mdp")->value().c_str();
             if(Configurator::md5_pwd == md5) request->send(SPIFFS, "/preferences.html", "text/html");
             else request->send(SPIFFS, "/login.html", "text/html");
         }else request->send(SPIFFS, "/login.html", "text/html"); });
     Configurator::server->on("/wifiscan", HTTP_GET, [](AsyncWebServerRequest *request)
-                             {
-        std::string result = Configurator::GetNetworks();
-        request->send_P(200, "text/plain", result.c_str()); });
+                             { request->send_P(200, "text/plain", Configurator::GetNetworks().c_str()); });
     Configurator::server->on("/update", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
         if(request->hasParam("mdp") && request->hasParam("key") && request->hasParam("value")){
@@ -133,8 +110,7 @@ void Configurator::Init(string title_)
         } });
     Configurator::server->on("/reset", HTTP_GET, [](AsyncWebServerRequest *request)
                              { Configurator::md5_pwd = ""; });
-    Serial.print(WiFi.softAPIP());
-    Configurator::server->begin();
+    Configurator::server->begin(); // Start Server
 }
 std::string Configurator::GetNetworks()
 {
@@ -143,40 +119,33 @@ std::string Configurator::GetNetworks()
     int16_t n = -1;
     if (WiFi.status() != WL_NO_SSID_AVAIL)
     {
-        n = WiFi.scanNetworks(true);
+        n = 0;
         do
         {
-            n = WiFi.scanComplete();
-            esp_task_wdt_reset();
-        } while (n == -1);
-        Serial.println(n);
-        // esp_task_wdt_reset();
-        if (n < 0)
-            n = 0;
-        // for(int i = 0; i < n; i++) ssids.push_back((std::string)((char*)(WiFi.SSID(i).c_str())));
-        for (int i = 0; i < n; i++)
+            n = WiFi.scanNetworks(true);
+            do
+            {
+                n = WiFi.scanComplete(); // Returns number of networks
+                esp_task_wdt_reset();    // Resets watchdog timer so program won' t break
+            } while (n == -1);
+        } while (n == -2);
+        n = n < 0 ? 0 : n;          // Fixes n to 0 if n is lower than 0
+        for (int i = 0; i < n; i++) // Formatting to SSID Array like network<|RSSI|>signal
         {
             std::string name = "";
             name = (std::string)((char *)(WiFi.SSID(i).c_str()));
             if (name != "")
-            {
-                name = name + "<|RSSI|>";
-                name = name + std::to_string((int)WiFi.RSSI(i));
-                ssids.push_back(name);
-            }
+                ssids.push_back(name + "<|RSSI|>" + std::to_string((int)WiFi.RSSI(i)));
         }
     }
     std::string result = "";
-    for (std::string ssid : ssids)
+    for (std::string ssid : ssids) // Formatting to String like <|SPLITTER|>network<|RSSI|>signal...
     {
         if (ssid != "")
             result = result + (std::string) "<|SPLITTER|>" + ssid;
     }
-    Configurator::ReplaceAll(result, "<|SPLITTER|><|SPLITTER|>", "<|SPLITTER|>");
-    if (n <= 0)
-        result = "None";
-    Serial.println(result.c_str());
-    return result;
+    Configurator::ReplaceAll(result, "<|SPLITTER|><|SPLITTER|>", "<|SPLITTER|>"); // Fixes empty networks
+    return n <= 0 ? "None" : result;                                              // Returns none or parsed string
 }
 void Configurator::ReplaceAll(std::string &str, const std::string &from, const std::string &to)
 {
@@ -189,14 +158,14 @@ void Configurator::ReplaceAll(std::string &str, const std::string &from, const s
         start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
     }
 }
-std::string Configurator::ReadDataPrefs(std::string key, std::string defaultval)
+std::string Configurator::ReadDataPrefs(std::string key, std::string defaultval) // Reads Data from flash
 {
     Configurator::preferences->begin("credentials_", false);
     std::string result = (std::string)Configurator::preferences->getString(key.c_str(), String(defaultval.c_str())).c_str();
     Configurator::preferences->end();
     return result;
 }
-void Configurator::WriteDataPrefs(std::string key, std::string data)
+void Configurator::WriteDataPrefs(std::string key, std::string data) // Writes Data to a flash
 {
     Configurator::preferences->begin("credentials_", false);
     Configurator::preferences->putString(key.c_str(), String(data.c_str()));
