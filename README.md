@@ -20,7 +20,7 @@ ApiCo Project for executing firmware update over the air
 * Install C++ extensions
 * Install Git
 * Clone
-* Add all depends if needed
+* Add all dependecies if needed
 
 ### Executing program
 
