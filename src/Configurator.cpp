@@ -3,7 +3,7 @@
 AsyncWebServer *Configurator::server;
 std::string Configurator::title;
 std::string Configurator::md5_pwd;
-std::string Configurator::FIRMWARE_STRING = "v0.0.0";
+std::string Configurator::FIRMWARE_VERSION = "v0.0.0";
 Preferences *Configurator::preferences;
 void Configurator::Init(string title_)
 {
@@ -85,6 +85,8 @@ void Configurator::Init(string title_)
         }else request->send_P(200, "text/plain", "failure"); });
     Configurator::server->on("/connected", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", WiFi.SSID().c_str()); });
+    Configurator::server->on("/firmware_version", HTTP_GET, [](AsyncWebServerRequest *request)
+                             { request->send_P(200, "text/plain", Configurator::FIRMWARE_VERSION.c_str()); });
     Configurator::server->on("/username", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", Configurator::ReadDataPrefs("username", "admin").c_str()); });
     Configurator::server->on("/disconnect", HTTP_GET, [](AsyncWebServerRequest *request)

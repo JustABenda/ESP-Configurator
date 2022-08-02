@@ -17,9 +17,9 @@ public:
     static void Init(std::string title_); // Init The server
     static std::string title;
     static std::string md5_pwd;
-    static std::string FIRMWARE_STRING;
     static std::string GetNetworks();
     static Preferences *preferences;
+    static std::string FIRMWARE_VERSION;
 
 private:
     static AsyncWebServer *server;

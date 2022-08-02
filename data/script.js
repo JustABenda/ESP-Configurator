@@ -125,6 +125,18 @@ function ScanConnected() {
     xhr.open('GET', "/connected", true);
     xhr.send();
 }
+function UpdateFirmwareVersion() {
+    span = document.getElementById("firmware");
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            resp = this.responseText;
+            span.innerHTML = resp;
+        }
+    };
+    xhr.open('GET', "/firmware_version", true);
+    xhr.send();
+}
 function GetSignal(signal) {
     signal = Number(signal);
     console.log(signal);
