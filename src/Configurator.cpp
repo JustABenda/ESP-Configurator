@@ -7,6 +7,7 @@ std::string Configurator::FIRMWARE_STRING = "v0.0.0";
 Preferences *Configurator::preferences;
 void Configurator::Init(string title_)
 {
+    Configurator::preferences = new Preferences();
     Configurator::title = title_;
     IPAddress localIP(192, 168, 4, 22);
     IPAddress gateway(192, 168, 4, 9);
@@ -14,7 +15,7 @@ void Configurator::Init(string title_)
     WiFi.mode(WIFI_AP_STA);
     WiFi.disconnect();
     WiFi.softAPConfig(localIP, gateway, subnet);
-    std::string ap_password = std::string("rootroot");
+    std::string ap_password = Configurator::ReadDataPrefs("ap_password", "rootroot");
     WiFi.softAP((String("ESP32 ") + WiFi.macAddress()).c_str(), ap_password.c_str());
     if (!SPIFFS.begin())
     {
@@ -59,8 +60,9 @@ void Configurator::Init(string title_)
             std::string md5;
             uname = (std::string)key_;
             pwd = (std::string)value_;
-            md5 = (std::string)pwd_md5_;  
-            if(uname == (std::string)"user" && pwd == (std::string)"pwd") {request->send_P(200, "text/plain", "success");Configurator::md5_pwd = md5;}
+            md5 = (std::string)pwd_md5_;
+            if (uname == (std::string)Configurator::ReadDataPrefs("username", "admin") && pwd == (std::string)Configurator::ReadDataPrefs("password", "admin"))
+            {request->send_P(200, "text/plain", "success");Configurator::md5_pwd = md5;}
             else request->send_P(200, "text/plain", "failure");
         }else request->send_P(200, "text/plain", "failure"); });
     Configurator::server->on("/connect", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -84,7 +86,7 @@ void Configurator::Init(string title_)
     Configurator::server->on("/connected", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", WiFi.SSID().c_str()); });
     Configurator::server->on("/username", HTTP_GET, [](AsyncWebServerRequest *request)
-                             { request->send_P(200, "text/plain", "user"); });
+                             { request->send_P(200, "text/plain", Configurator::ReadDataPrefs("username", "admin").c_str()); });
     Configurator::server->on("/disconnect", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
         if(WiFi.status() == WL_CONNECTED) WiFi.disconnect();
@@ -121,9 +123,10 @@ void Configurator::Init(string title_)
             std::string value = (std::string)request->getParam("value")->value().c_str();
 
             if(md5 == Configurator::md5_pwd){
-                if(key == "username") Serial.println(value.c_str());
-                if(key == "userpassword") Serial.println(value.c_str());
-                if(key == "ap_password") Serial.println(value.c_str());
+                if(key == "username") Configurator::WriteDataPrefs("username", value);
+                if(key == "userpassword") Configurator::WriteDataPrefs("password", value);
+                if(key == "ap_password") Configurator::WriteDataPrefs("ap_password", value);
+                if(key == "reload") Configurator::md5_pwd = "";
             }
         } });
     Configurator::server->on("/reset", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -186,14 +189,14 @@ void Configurator::ReplaceAll(std::string &str, const std::string &from, const s
 }
 std::string Configurator::ReadDataPrefs(std::string key, std::string defaultval)
 {
-    Configurator::preferences->begin("configurator_preferences_", false);
+    Configurator::preferences->begin("credentials_", false);
     std::string result = (std::string)Configurator::preferences->getString(key.c_str(), String(defaultval.c_str())).c_str();
     Configurator::preferences->end();
     return result;
 }
 void Configurator::WriteDataPrefs(std::string key, std::string data)
 {
-    Configurator::preferences->begin("configurator_preferences_", false);
+    Configurator::preferences->begin("credentials_", false);
     Configurator::preferences->putString(key.c_str(), String(data.c_str()));
     Configurator::preferences->end();
 }
