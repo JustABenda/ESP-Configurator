@@ -133,6 +133,7 @@ void Configurator::Init(string title_)
 }
 std::string Configurator::GetNetworks()
 {
+    esp_task_wdt_reset();
     vector<std::string> ssids;
     int16_t n = -1;
     if (WiFi.status() != WL_NO_SSID_AVAIL)
