@@ -14,7 +14,7 @@ void setup()
   Serial.begin(115200);
   Serial.println();
   Configurator::FIRMWARE_VERSION = "v0.0.1";
-  Configurator::Init("ESP Configurator");
+  Configurator::Init("ESP Configurator"); // Configurator::Deinit(); to turn off
 }
 void onLogin(bool success)
 {

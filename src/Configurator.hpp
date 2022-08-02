@@ -15,6 +15,7 @@ class Configurator
 {
 public:
     static void Init(std::string title_); // Init The server
+    static void Deinit();
     static std::string title;
     static std::string md5_pwd;
     static std::string GetNetworks();
@@ -23,7 +24,6 @@ public:
 
 private:
     static AsyncWebServer *server;
-    static bool isLoggedIn;
     static void ReplaceAll(std::string &str, const std::string &from, const std::string &to);
     static std::string ReadDataPrefs(std::string key, std::string defaultval);
     static void WriteDataPrefs(std::string key, std::string data);

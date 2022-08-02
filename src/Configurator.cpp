@@ -171,3 +171,10 @@ void Configurator::WriteDataPrefs(std::string key, std::string data) // Writes D
     Configurator::preferences->putString(key.c_str(), String(data.c_str()));
     Configurator::preferences->end();
 }
+void Configurator::Deinit()
+{
+    Configurator::server->end();
+    WiFi.disconnect();
+    WiFi.softAPdisconnect(true);
+    Configurator::md5_pwd = "";
+}
