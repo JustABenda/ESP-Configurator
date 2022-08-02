@@ -9,27 +9,32 @@
 #include "SPIFFS.h"
 #include "Configurator.hpp"
 #include "EventSource.hpp"
-void setup() {
+void setup()
+{
   Serial.begin(115200);
   Serial.println();
   Serial.println("SSID -> esp32 " + WiFi.macAddress());
   Serial.println("Password -> root");
-  Configurator::Init("ESP Configurator"); 
-  Serial.println(Configurator::GetNetworks().c_str());
+  Configurator::Init("ESP Configurator");
 }
-void onLogin(bool success){
+void onLogin(bool success)
+{
   Serial.println(success);
 }
-void onConnect(std::string ssid){
+void onConnect(std::string ssid)
+{
   Serial.println(ssid.c_str());
 }
-void onDisconnect(){
+void onDisconnect()
+{
   Serial.println("Disconnected");
 }
-void onUpdate(std::string command){
+void onUpdate(std::string command)
+{
   Serial.println(command.c_str());
 }
 
-void loop() {
+void loop()
+{
   delay(1000);
 }

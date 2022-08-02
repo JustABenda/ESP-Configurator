@@ -8,21 +8,23 @@
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
 #include <Preferences.h>
+#include <esp_task_wdt.h>
 
 using namespace std;
-class Configurator{
+class Configurator
+{
 public:
-    static void Init(std::string title_); //Init The server
+    static void Init(std::string title_); // Init The server
     static std::string title;
     static std::string md5_pwd;
     static std::string FIRMWARE_STRING;
     static std::string GetNetworks();
     static Preferences *preferences;
+
 private:
     static AsyncWebServer *server;
     static bool isLoggedIn;
-    static void ReplaceAll(std::string& str, const std::string& from, const std::string& to);
+    static void ReplaceAll(std::string &str, const std::string &from, const std::string &to);
     static std::string ReadDataPrefs(std::string key, std::string defaultval);
     static void WriteDataPrefs(std::string key, std::string data);
-
 };
