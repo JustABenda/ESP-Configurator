@@ -81,7 +81,7 @@ function ScanNetworks(ssid) {
                     console.log(wifi_name + " " + ssid);
                     wifi_signal = item.split("<|RSSI|>")[1];
                     if (wifi_name.length > 17) {
-                        wifi_name = wifi_name.substr(0, 17);
+                        wifi_name = wifi_name.substr(0, 17) + "...";
                     }
                     if (wifi_name == ssid) resultString = resultString + WifiPattern(wifi_id, wifi_name, false, wifi_signal);
                     else resultString = resultString + WifiPattern(wifi_id, wifi_name, true, wifi_signal);
