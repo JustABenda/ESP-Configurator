@@ -1,6 +1,6 @@
 # ESP-Configurator
 
-ApiCo Project for updating and configuring Device
+ApiCo Project for updating and configuring Device based on ESPAsyncWebServer
 ## Description
 
 * API written in C++ using PlatformIO
