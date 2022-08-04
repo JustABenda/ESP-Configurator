@@ -9,31 +9,43 @@
 #include "SPIFFS.h"
 #include "Configurator.hpp"
 #include "EventSource.hpp"
+
+int onLogin(std::string value);
+int onConnect(std::string value);
+int onDisconnect(std::string value);
+int onUpdate(std::string value);
+
 void setup()
 {
   Serial.begin(115200);
   Serial.println();
   Configurator::FIRMWARE_VERSION = "v0.0.1";
+  Configurator::LoginFunction = &onLogin;
+  Configurator::DisconnectFunction = &onDisconnect;
+  Configurator::ConnectFunction = &onConnect;
   Configurator::Init("ESP Configurator"); // Configurator::Deinit(); to turn off
 }
-void onLogin(bool success)
+int onLogin(std::string value)
 {
-  Serial.println(success);
+  Serial.println(value.c_str());
+  return 0;
 }
-void onConnect(std::string ssid)
+int onConnect(std::string ssid)
 {
   Serial.println(ssid.c_str());
+  return 0;
 }
-void onDisconnect()
+int onDisconnect(std::string arg /*NULL*/)
 {
   Serial.println("Disconnected");
+  return 0;
 }
-void onUpdate(std::string command)
+int onUpdate(std::string command)
 {
   Serial.println(command.c_str());
+  return 0;
 }
 
 void loop()
 {
-  delay(1000);
 }

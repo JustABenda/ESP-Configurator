@@ -5,6 +5,11 @@ std::string Configurator::title;
 std::string Configurator::md5_pwd;
 std::string Configurator::FIRMWARE_VERSION = "v0.0.0";
 Preferences *Configurator::preferences;
+bool Configurator::scanning = false;
+int (*Configurator::LoginFunction)(std::string value);
+int (*Configurator::ConnectFunction)(std::string value);
+int (*Configurator::DisconnectFunction)(std::string value);
+int (*Configurator::UpdateFunction)(std::string value);
 void Configurator::Init(string title_) // Runs AsyncWebServer and handles communication
 {
     Configurator::preferences = new Preferences(); // Flash Data
@@ -32,20 +37,20 @@ void Configurator::Init(string title_) // Runs AsyncWebServer and handles commun
                              { request->send(SPIFFS, "/script.js", "text/js"); });
     Configurator::server->on("/imgs/favicon.png", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send(SPIFFS, "/imgs/favicon.png", "image/png"); });
-    Configurator::server->on("/imgs/lock.png", HTTP_GET, [](AsyncWebServerRequest *request)
-                             { request->send(SPIFFS, "/imgs/lock.png", "image/png"); });
-    Configurator::server->on("/imgs/unlock.png", HTTP_GET, [](AsyncWebServerRequest *request)
-                             { request->send(SPIFFS, "/imgs/unlock.png", "image/png"); });
-    Configurator::server->on("/imgs/signal0.png", HTTP_GET, [](AsyncWebServerRequest *request)
-                             { request->send(SPIFFS, "/imgs/signal0.png", "image/png"); });
-    Configurator::server->on("/imgs/signal1.png", HTTP_GET, [](AsyncWebServerRequest *request)
-                             { request->send(SPIFFS, "/imgs/signal1.png", "image/png"); });
-    Configurator::server->on("/imgs/signal2.png", HTTP_GET, [](AsyncWebServerRequest *request)
-                             { request->send(SPIFFS, "/imgs/signal2.png", "image/png"); });
-    Configurator::server->on("/imgs/signal3.png", HTTP_GET, [](AsyncWebServerRequest *request)
-                             { request->send(SPIFFS, "/imgs/signal3.png", "image/png"); });
-    Configurator::server->on("/imgs/signal4.png", HTTP_GET, [](AsyncWebServerRequest *request)
-                             { request->send(SPIFFS, "/imgs/signal4.png", "image/png"); });
+    Configurator::server->on("/imgs/lock.svg", HTTP_GET, [](AsyncWebServerRequest *request)
+                             { request->send(SPIFFS, "/imgs/lock.svg", "image/svg"); });
+    Configurator::server->on("/imgs/unlock.svg", HTTP_GET, [](AsyncWebServerRequest *request)
+                             { request->send(SPIFFS, "/imgs/unlock.svg", "image/svg"); });
+    Configurator::server->on("/imgs/signal0.svg", HTTP_GET, [](AsyncWebServerRequest *request)
+                             { request->send(SPIFFS, "/imgs/signal0.svg", "image/svg"); });
+    Configurator::server->on("/imgs/signal1.svg", HTTP_GET, [](AsyncWebServerRequest *request)
+                             { request->send(SPIFFS, "/imgs/signal1.svg", "image/svg"); });
+    Configurator::server->on("/imgs/signal2.svg", HTTP_GET, [](AsyncWebServerRequest *request)
+                             { request->send(SPIFFS, "/imgs/signal2.svg", "image/svg"); });
+    Configurator::server->on("/imgs/signal3.svg", HTTP_GET, [](AsyncWebServerRequest *request)
+                             { request->send(SPIFFS, "/imgs/signal3.svg", "image/svg"); });
+    Configurator::server->on("/imgs/signal4.svg", HTTP_GET, [](AsyncWebServerRequest *request)
+                             { request->send(SPIFFS, "/imgs/signal4.svg", "image/svg"); });
     Configurator::server->on("/login", HTTP_GET, [](AsyncWebServerRequest *request) // Handles Login
                              {
         if(request->hasParam("uname") && request->hasParam("pwd")){
@@ -53,7 +58,7 @@ void Configurator::Init(string title_) // Runs AsyncWebServer and handles commun
             std::string pwd = (std::string)request->getParam("pwd")->value().c_str();
             std::string md5 = (std::string)request->getParam("mdp")->value().c_str();
             if (uname == Configurator::ReadDataPrefs("username", "admin") && pwd == Configurator::ReadDataPrefs("password", "admin"))
-            {request->send_P(200, "text/plain", "success");Configurator::md5_pwd = md5;}
+            {request->send_P(200, "text/plain", "success");Configurator::md5_pwd = md5;Configurator::LoginFunction(uname);}
             else request->send_P(200, "text/plain", "failure");
         }else request->send_P(200, "text/plain", "failure"); });
     Configurator::server->on("/connect", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -64,8 +69,15 @@ void Configurator::Init(string title_) // Runs AsyncWebServer and handles commun
             std::string md5 = (std::string)request->getParam("mdp")->value().c_str();
             WiFi.begin(ssid.c_str(), pwd.c_str());
             unsigned long startTime = millis();
-            while(WiFi.status() != WL_CONNECTED && millis() - startTime < 2000) delay(100);
-            if(WiFi.status() == WL_CONNECTED) request->send_P(200, "text/plain", "connected");
+            while(WiFi.status() != WL_CONNECTED && millis() - startTime < 5000)
+            {
+                esp_task_wdt_reset();
+            }
+            if(WiFi.status() == WL_CONNECTED)
+            {
+                Configurator::ConnectFunction(ssid);
+                request->send_P(200, "text/plain", "connected");
+            }
             else {request->send_P(200, "text/plain", "failure");Serial.println("Failed");}
         }else request->send_P(200, "text/plain", "failure"); });
     Configurator::server->on("/connected", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -74,10 +86,12 @@ void Configurator::Init(string title_) // Runs AsyncWebServer and handles commun
                              { request->send_P(200, "text/plain", Configurator::FIRMWARE_VERSION.c_str()); });
     Configurator::server->on("/username", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", Configurator::ReadDataPrefs("username", "admin").c_str()); });
+    Configurator::server->on("/search", HTTP_GET, [](AsyncWebServerRequest *request)
+                             { Serial.println(Configurator::scanning);request->send_P(200, "text/plain", Configurator::scanning ? "scanning" : "not"); });
     Configurator::server->on("/disconnect", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
         if(WiFi.status() == WL_CONNECTED) WiFi.disconnect();
-        Serial.println("Disconnected"); });
+        Configurator::DisconnectFunction(""); });
     Configurator::server->on("/index", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
         if(request->hasParam("mdp")){
@@ -117,8 +131,10 @@ std::string Configurator::GetNetworks()
     esp_task_wdt_reset();
     vector<std::string> ssids;
     int16_t n = -1;
+
     if (WiFi.status() != WL_NO_SSID_AVAIL)
     {
+        Configurator::scanning = true;
         n = 0;
         do
         {
@@ -126,7 +142,8 @@ std::string Configurator::GetNetworks()
             do
             {
                 n = WiFi.scanComplete(); // Returns number of networks
-                esp_task_wdt_reset();    // Resets watchdog timer so program won' t break
+                delay(50);
+                esp_task_wdt_reset(); // Resets watchdog timer so program won' t break
             } while (n == -1);
         } while (n == -2);
         n = n < 0 ? 0 : n;          // Fixes n to 0 if n is lower than 0
@@ -138,6 +155,7 @@ std::string Configurator::GetNetworks()
                 ssids.push_back(name + "<|RSSI|>" + std::to_string((int)WiFi.RSSI(i)));
         }
     }
+    Configurator::scanning = false;
     std::string result = "";
     for (std::string ssid : ssids) // Formatting to String like <|SPLITTER|>network<|RSSI|>signal...
     {

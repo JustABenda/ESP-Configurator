@@ -13,16 +13,18 @@
     <title>Networks</title>
 </head>
 
-<body onload="ScanConnected();UpdateFirmwareVersion();">
+<body onload="UpdateFirmwareVersion();setInterval(checkSearch, 2000)">
     <form id="center_form">
         <h3>Firmware Version: <span id="firmware"></span></h3>
-        <h1>Available Networks<input type="button" id="submit" value="Scan" onclick="ScanConnected();"></h1>
+        <h1>Available Networks<input type="button" id="submit" value="Scan" onclick="ScanConnected();ShowSearch();">
+        </h1>
+        <div id="loading" class="loadingOff"></div>
         <hr>
         <span id="wifi_box">
         </span>
         <input type="button" class="button" value="Update Firmware" onclick="Send('/update_firmware')"><input
-            type="button" class="button" value="Disconnect" onclick="Send('/disconnect');ScanNetworks('');"><input
-            type="button" class="button" value="Preferences"
+            type="button" class="button" value="Disconnect" onclick="Send('/disconnect');"><input type="button"
+            class="button" value="Preferences"
             onclick="window.location.href = './prefs?mdp=' + findGetParameter('mdp');">
     </form>
 </body>
