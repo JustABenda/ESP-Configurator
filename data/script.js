@@ -119,7 +119,7 @@ function ScanNetworks(ssid) {
                     if (wifi_name.length > 17) {
                         wifi_name = wifi_name.substr(0, 17) + "...";
                     }
-                    if (wifi_name == ssid) resultString = resultString + WifiPattern(wifi_id, wifi_name, false, wifi_signal);
+                    if (wifi_id == ssid) resultString = resultString + WifiPattern(wifi_id, wifi_name, false, wifi_signal);
                     else resultString = resultString + WifiPattern(wifi_id, wifi_name, true, wifi_signal);
                 });
                 networks.innerHTML = resultString;

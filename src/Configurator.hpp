@@ -14,7 +14,7 @@ using namespace std;
 class Configurator
 {
 public:
-    static void Init(std::string title_); // Init The server
+    static void Init(std::string title_, bool login_); // Init The server
     static void Deinit();
     static int (*LoginFunction)(std::string value);
     static int (*ConnectFunction)(std::string value);
@@ -25,6 +25,7 @@ public:
     static std::string GetNetworks();
     static Preferences *preferences;
     static std::string FIRMWARE_VERSION;
+    static bool login;
 
 private:
     static AsyncWebServer *server;

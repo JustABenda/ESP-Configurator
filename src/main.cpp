@@ -23,7 +23,7 @@ void setup()
   Configurator::LoginFunction = &onLogin;
   Configurator::DisconnectFunction = &onDisconnect;
   Configurator::ConnectFunction = &onConnect;
-  Configurator::Init("ESP Configurator"); // Configurator::Deinit(); to turn off
+  Configurator::Init("ESP Configurator", false); // Configurator::Deinit(); to turn off
 }
 int onLogin(std::string value)
 {

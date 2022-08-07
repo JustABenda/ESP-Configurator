@@ -3,6 +3,7 @@
 AsyncWebServer *Configurator::server;
 std::string Configurator::title;
 std::string Configurator::md5_pwd;
+bool Configurator::login;
 std::string Configurator::FIRMWARE_VERSION = "v0.0.0";
 Preferences *Configurator::preferences;
 bool Configurator::scanning = false;
@@ -10,8 +11,10 @@ int (*Configurator::LoginFunction)(std::string value);
 int (*Configurator::ConnectFunction)(std::string value);
 int (*Configurator::DisconnectFunction)(std::string value);
 int (*Configurator::UpdateFunction)(std::string value);
-void Configurator::Init(string title_) // Runs AsyncWebServer and handles communication
+void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and handles communication
 {
+    Configurator::md5_pwd = "nologin";
+    Configurator::login = login_;
     Configurator::preferences = new Preferences(); // Flash Data
     Configurator::title = title_;
     IPAddress localIP(192, 168, 4, 22); // Configuring ip that can be accessed on AP mode
@@ -28,7 +31,10 @@ void Configurator::Init(string title_) // Runs AsyncWebServer and handles commun
     Configurator::server = new AsyncWebServer(80); // Server Constructor
     // Requests
     Configurator::server->on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-                             { request->send(SPIFFS, "/login.html", "text/html"); });
+                            { 
+                                if(Configurator::login) request->send(SPIFFS, "/login.html", "text/html");
+                                else request->send(SPIFFS, "/index.html", "text/html");
+                            });
     Configurator::server->on("/title", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", Configurator::title.c_str()); });
     Configurator::server->on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -63,23 +69,44 @@ void Configurator::Init(string title_) // Runs AsyncWebServer and handles commun
         }else request->send_P(200, "text/plain", "failure"); });
     Configurator::server->on("/connect", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
-        if(request->hasParam("ssid") && request->hasParam("pwd") && request->hasParam("mdp")){
-            std::string ssid = (std::string)request->getParam("ssid")->value().c_str();
-            std::string pwd = (std::string)request->getParam("pwd")->value().c_str();
-            std::string md5 = (std::string)request->getParam("mdp")->value().c_str();
-            WiFi.begin(ssid.c_str(), pwd.c_str());
-            unsigned long startTime = millis();
-            while(WiFi.status() != WL_CONNECTED && millis() - startTime < 5000)
-            {
-                esp_task_wdt_reset();
-            }
-            if(WiFi.status() == WL_CONNECTED)
-            {
-                Configurator::ConnectFunction(ssid);
-                request->send_P(200, "text/plain", "connected");
-            }
-            else {request->send_P(200, "text/plain", "failure");Serial.println("Failed");}
-        }else request->send_P(200, "text/plain", "failure"); });
+        if(Configurator::login && request->hasParam("mdp")){                        
+            if(request->hasParam("ssid") && request->hasParam("pwd")){
+                std::string ssid = (std::string)request->getParam("ssid")->value().c_str();
+                std::string pwd = (std::string)request->getParam("pwd")->value().c_str();
+                std::string md5 = (std::string)request->getParam("mdp")->value().c_str();
+                WiFi.begin(ssid.c_str(), pwd.c_str());
+                unsigned long startTime = millis();
+                while(WiFi.status() != WL_CONNECTED && millis() - startTime < 5000)
+                {
+                    esp_task_wdt_reset();
+                }
+                if(WiFi.status() == WL_CONNECTED)
+                {
+                    Configurator::ConnectFunction(ssid);
+                    request->send_P(200, "text/plain", "connected");
+                }
+                else {request->send_P(200, "text/plain", "failure");Serial.println("Failed");}
+            }else request->send_P(200, "text/plain", "failure"); 
+        }
+        else if(!Configurator::login){
+            if(request->hasParam("ssid") && request->hasParam("pwd")){
+                std::string ssid = (std::string)request->getParam("ssid")->value().c_str();
+                std::string pwd = (std::string)request->getParam("pwd")->value().c_str();
+                WiFi.begin(ssid.c_str(), pwd.c_str());
+                unsigned long startTime = millis();
+                while(WiFi.status() != WL_CONNECTED && millis() - startTime < 5000)
+                {
+                    esp_task_wdt_reset();
+                }
+                if(WiFi.status() == WL_CONNECTED)
+                {
+                    Configurator::ConnectFunction(ssid);
+                    request->send_P(200, "text/plain", "connected");
+                }
+                else {request->send_P(200, "text/plain", "failure");Serial.println("Failed");}
+            }else request->send_P(200, "text/plain", "failure"); 
+        }
+        });
     Configurator::server->on("/connected", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", WiFi.SSID().c_str()); });
     Configurator::server->on("/firmware_version", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -94,14 +121,20 @@ void Configurator::Init(string title_) // Runs AsyncWebServer and handles commun
         Configurator::DisconnectFunction(""); });
     Configurator::server->on("/index", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
-        if(request->hasParam("mdp")){
+        if(!Configurator::login){
+            request->send(SPIFFS, "/index.html", "text/html");
+        }
+        else if(request->hasParam("mdp") && Configurator::login){
             std::string md5 = (std::string)request->getParam("mdp")->value().c_str();
             if(Configurator::md5_pwd == md5) request->send(SPIFFS, "/index.html", "text/html");
             else request->send(SPIFFS, "/login.html", "text/html");
         }else request->send(SPIFFS, "/login.html", "text/html"); });
     Configurator::server->on("/prefs", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
-        if(request->hasParam("mdp")){
+        if(!Configurator::login){
+            request->send(SPIFFS, "/preferences.html", "text/html");
+        }
+        else if(request->hasParam("mdp") && Configurator::login){
             std::string md5 = (std::string)request->getParam("mdp")->value().c_str();
             if(Configurator::md5_pwd == md5) request->send(SPIFFS, "/preferences.html", "text/html");
             else request->send(SPIFFS, "/login.html", "text/html");
@@ -116,10 +149,10 @@ void Configurator::Init(string title_) // Runs AsyncWebServer and handles commun
             std::string value = (std::string)request->getParam("value")->value().c_str();
 
             if(md5 == Configurator::md5_pwd){
-                if(key == "username") Configurator::WriteDataPrefs("username", value);
-                if(key == "userpassword") Configurator::WriteDataPrefs("password", value);
+                if(key == "username" && Configurator::login) Configurator::WriteDataPrefs("username", value);
+                if(key == "userpassword" && Configurator::login) Configurator::WriteDataPrefs("password", value);
                 if(key == "ap_password") Configurator::WriteDataPrefs("ap_password", value);
-                if(key == "reload") Configurator::md5_pwd = "";
+                if(key == "reload" && Configurator::login) Configurator::md5_pwd = "";
             }
         } });
     Configurator::server->on("/reset", HTTP_GET, [](AsyncWebServerRequest *request)
