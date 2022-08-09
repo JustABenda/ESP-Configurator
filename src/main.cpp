@@ -23,6 +23,7 @@ void setup()
   Configurator::LoginFunction = &onLogin;
   Configurator::DisconnectFunction = &onDisconnect;
   Configurator::ConnectFunction = &onConnect;
+  Configurator::UpdateFunction = &onUpdate;
   Configurator::Init("ESP Configurator", false); // Configurator::Deinit(); to turn off
 }
 int onLogin(std::string value)
@@ -40,12 +41,20 @@ int onDisconnect(std::string arg /*NULL*/)
   Serial.println("Disconnected");
   return 0;
 }
-int onUpdate(std::string command)
+int onUpdate(std::string value /*NULL*/)
 {
-  Serial.println(command.c_str());
-  return 0;
+  Serial.println("Updating");
+  Configurator::STATUS = "UPDATING";
+  return 1; // 0 for already newest, 1 for Update -1 error_wifi other for unknown error
 }
 
 void loop()
 {
+  if (Configurator::STATUS == "UPDATING")
+  {
+    delay(5000);
+    Configurator::STATUS = "A_REBOOT";
+    delay(15000);
+    Configurator::STATUS = "REBOOTING";
+  }
 }

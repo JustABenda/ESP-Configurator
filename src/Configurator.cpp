@@ -11,9 +11,11 @@ int (*Configurator::LoginFunction)(std::string value);
 int (*Configurator::ConnectFunction)(std::string value);
 int (*Configurator::DisconnectFunction)(std::string value);
 int (*Configurator::UpdateFunction)(std::string value);
+std::string Configurator::STATUS = "IDLE";
+
 void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and handles communication
 {
-    Configurator::md5_pwd = "nologin";
+    Configurator::md5_pwd = login_ ? "" : "null";
     Configurator::login = login_;
     Configurator::preferences = new Preferences(); // Flash Data
     Configurator::title = title_;
@@ -31,10 +33,9 @@ void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and h
     Configurator::server = new AsyncWebServer(80); // Server Constructor
     // Requests
     Configurator::server->on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-                            { 
+                             { 
                                 if(Configurator::login) request->send(SPIFFS, "/login.html", "text/html");
-                                else request->send(SPIFFS, "/index.html", "text/html");
-                            });
+                                else request->send(SPIFFS, "/index.html", "text/html"); });
     Configurator::server->on("/title", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", Configurator::title.c_str()); });
     Configurator::server->on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -105,14 +106,19 @@ void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and h
                 }
                 else {request->send_P(200, "text/plain", "failure");Serial.println("Failed");}
             }else request->send_P(200, "text/plain", "failure"); 
-        }
-        });
+        } });
+    Configurator::server->on("/loginreq", HTTP_GET, [](AsyncWebServerRequest *request)
+                             { request->send_P(200, "text/plain", Configurator::login ? "true" : "false"); });
     Configurator::server->on("/connected", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", WiFi.SSID().c_str()); });
     Configurator::server->on("/firmware_version", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", Configurator::FIRMWARE_VERSION.c_str()); });
     Configurator::server->on("/username", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", Configurator::ReadDataPrefs("username", "admin").c_str()); });
+    Configurator::server->on("/updating", HTTP_GET, [](AsyncWebServerRequest *request)
+                             { request->send_P(200, "text/plain", Configurator::STATUS == "UPDATING" ? "true" : Configurator::STATUS == "REBOOTING" ? "rebooting"
+                                                                                                            : Configurator::STATUS == "A_REBOOT"    ? "a_reboot"
+                                                                                                                                                    : "false"); });
     Configurator::server->on("/search", HTTP_GET, [](AsyncWebServerRequest *request)
                              { Serial.println(Configurator::scanning);request->send_P(200, "text/plain", Configurator::scanning ? "scanning" : "not"); });
     Configurator::server->on("/disconnect", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -141,6 +147,10 @@ void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and h
         }else request->send(SPIFFS, "/login.html", "text/html"); });
     Configurator::server->on("/wifiscan", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", Configurator::GetNetworks().c_str()); });
+    Configurator::server->on("/update_firmware", HTTP_GET, [](AsyncWebServerRequest *request)
+                             { 
+                                int update = Configurator::UpdateFunction(""); 
+                                request->send_P(200, "text/plain", update == 1 ? "update" : update == 0 ? "e_installed" : update == -1 ? "e_wifi" : "nan"); });
     Configurator::server->on("/update", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
         if(request->hasParam("mdp") && request->hasParam("key") && request->hasParam("value")){

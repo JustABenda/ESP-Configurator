@@ -26,6 +26,7 @@ public:
     static Preferences *preferences;
     static std::string FIRMWARE_VERSION;
     static bool login;
+    static std::string STATUS;
 
 private:
     static AsyncWebServer *server;

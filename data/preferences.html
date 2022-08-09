@@ -13,16 +13,20 @@
     <title>Preferences</title>
 </head>
 
-<body onload="init();PrefLoad()">
+<body
+    onload="init();PrefLoad();OnLoadDependsOnLogin(document.getElementById('new_username'));OnLoadDependsOnLogin(document.getElementById('new_password'));OnLoadDependsOnLogin(document.getElementById('new_password_ver'));">
     <center>
         <h1><span id="title">Preferences</span></h1>
     </center>
     <form id="preferences_form">
         <input type="button" id="change_button" value="Menu"
             onclick="window.location.href = './index?mdp=' + findGetParameter('mdp');">
-        <input type="username" id="new_username" placeholder="Enter New Username" class="textbox">
-        <input type="password" id="new_password" placeholder="Enter New Password" class="textbox">
-        <input type="password" id="new_password_ver" placeholder="Re-enter Password" class="textbox">
+        <input type="username" id="new_username" placeholder="Enter New Username" class="textbox"
+            onload="OnLoadDependsOnLogin(this);">
+        <input type="password" id="new_password" placeholder="Enter New Password" class="textbox"
+            onload="OnLoadDependsOnLogin(this);">
+        <input type="password" id="new_password_ver" placeholder="Re-enter Password" class="textbox"
+            onload="OnLoadDependsOnLogin(this);">
         <input type="text" id="new_ap_password" placeholder="Enter AP Password" class="textbox">
         <input type="button" id="change_button" value="Change" onclick="ChangePreferences();">
         <input type="button" id="change_button" value="Reload"
