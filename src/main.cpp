@@ -8,7 +8,6 @@
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
 #include "Configurator.hpp"
-#include "EventSource.hpp"
 
 int onLogin(std::string value);
 int onConnect(std::string value);
