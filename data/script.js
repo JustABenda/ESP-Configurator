@@ -183,8 +183,10 @@ function UpdateFirmware() {
     xhr.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             resp = this.responseText;
-            if (resp == "update")
+            if (resp == "update") {
                 alert("Updating to newer version");
+                ShowOverlay();
+            }
             else if (resp == "e_wifi") alert("WiFi Error");
             else if (resp == "e_installed") alert("Newest Version is already installed");
             else alert("Unknown Error");
@@ -193,6 +195,10 @@ function UpdateFirmware() {
     };
     xhr.open('GET', "/update_firmware", true);
     xhr.send();
+}
+function ShowOverlay() {
+    overlay = document.getElementById("overlay");
+    if (!overlay.classList.contains("overlayOn")) overlay.classLists.add("overlayOn");
 }
 function Updating() {
     span = document.getElementById("firmware");
