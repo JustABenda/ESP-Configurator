@@ -197,7 +197,7 @@ function UpdateFirmware() {
 }
 function ShowOverlay() {
     overlay = document.getElementById("overlay");
-    if (!overlay.classList.contains("overlayOn")) overlay.classLists.add("overlayOn");
+    if (!overlay.classList.contains("overlayOn")) overlay.classList.add("overlayOn");
 }
 function Updating() {
     span = document.getElementById("firmware");
