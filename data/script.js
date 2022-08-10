@@ -185,6 +185,7 @@ function UpdateFirmware() {
             resp = this.responseText;
             if (resp == "update") {
                 alert("Updating to newer version");
+                ShowOverlay();
             }
             else if (resp == "e_wifi") alert("WiFi Error");
             else if (resp == "e_installed") alert("Newest Version is already installed");
