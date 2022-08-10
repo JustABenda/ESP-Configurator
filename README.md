@@ -35,7 +35,7 @@ Filip Benda
 
 ## Version History
 * 0.5
-    *Developer Release
+    * Developer Release
 * 0.1
     * Prewiew Release
 
