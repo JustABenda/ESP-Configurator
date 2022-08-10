@@ -185,7 +185,6 @@ function UpdateFirmware() {
             resp = this.responseText;
             if (resp == "update") {
                 alert("Updating to newer version");
-                ShowOverlay();
             }
             else if (resp == "e_wifi") alert("WiFi Error");
             else if (resp == "e_installed") alert("Newest Version is already installed");
@@ -206,8 +205,10 @@ function Updating() {
     xhr.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             resp = this.responseText;
-            if (resp == "true")
+            if (resp == "true") {
                 span.innerHTML = "-> Updating...";
+                ShowOverlay();
+            }
             if (resp == "false");
             else if (resp == "a_reboot") span.innerHTML = "Rebooting in 15s";
             else if (resp == "rebooting") span.innerHTML = "Rebooting";
