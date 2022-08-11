@@ -32,8 +32,11 @@ private:
     static AsyncWebServer *server;
     static void ReplaceAll(std::string &str, const std::string &from, const std::string &to);
     static std::string ReadDataPrefs(std::string key, std::string defaultval);
+    static std::string networks_string;
     static void WriteDataPrefs(std::string key, std::string data);
     static bool scanning;
-    static TaskHandle_t ScanTaskHandler;
+    static TaskHandle_t scanTaskHandler;
+    static SemaphoreHandle_t scanSemaphoreHandle;
+    static SemaphoreHandle_t sendScanSemaphoreHandle;
     static void ScanTaskCode(void *vpParameters);
 };

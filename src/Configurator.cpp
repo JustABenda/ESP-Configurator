@@ -11,11 +11,22 @@ int (*Configurator::LoginFunction)(std::string value);
 int (*Configurator::ConnectFunction)(std::string value);
 int (*Configurator::DisconnectFunction)(std::string value);
 int (*Configurator::UpdateFunction)(std::string value);
-// TaskHandler_t Configurator::ScanTaskHandler;
+TaskHandle_t Configurator::scanTaskHandler;
+SemaphoreHandle_t Configurator::scanSemaphoreHandle;
+SemaphoreHandle_t Configurator::sendScanSemaphoreHandle;
 std::string Configurator::STATUS = "IDLE";
+std::string Configurator::networks_string = "";
 
 void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and handles communication
 {
+    Configurator::scanSemaphoreHandle = xSemaphoreCreateBinary();
+    Configurator::sendScanSemaphoreHandle = xSemaphoreCreateBinary();
+    if (Configurator::scanSemaphoreHandle == NULL)
+        Serial.println("Failed to create scan Semaphore");
+    if (Configurator::sendScanSemaphoreHandle == NULL)
+        Serial.println("Failed to create send Semaphore");
+    xSemaphoreTake(Configurator::scanSemaphoreHandle, 0);
+    xSemaphoreTake(Configurator::sendScanSemaphoreHandle, 0);
     Configurator::md5_pwd = login_ ? "" : "null";
     Configurator::login = login_;
     Configurator::preferences = new Preferences(); // Flash Data
@@ -31,7 +42,7 @@ void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and h
     {
         Serial.println("Failed to mount device filesystem"); // Failed
     }
-    // xTaskCreatePinnedToCore(&Configurator::ScanTaskCode, "scan_task", 1000, NULL, 1, &Configurator::ScanTaskHandler, 1);
+    xTaskCreate(&Configurator::ScanTaskCode, "scan_task", 2048, NULL, 1, &Configurator::scanTaskHandler);
     Configurator::server = new AsyncWebServer(80); // Server Constructor
     // Requests
     Configurator::server->on("/", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -179,42 +190,13 @@ void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and h
 }
 std::string Configurator::GetNetworks()
 {
-    esp_task_wdt_reset();
-    vector<std::string> ssids;
-    int16_t n = -1;
-
-    if (WiFi.status() != WL_NO_SSID_AVAIL)
+    xSemaphoreGive(Configurator::scanSemaphoreHandle);
+    while (!xSemaphoreTake(Configurator::sendScanSemaphoreHandle, 0))
     {
-        Configurator::scanning = true;
-        n = 0;
-        do
-        {
-            n = WiFi.scanNetworks(true);
-            do
-            {
-                n = WiFi.scanComplete(); // Returns number of networks
-                delay(50);
-                esp_task_wdt_reset(); // Resets watchdog timer so program won' t break
-            } while (n == -1);
-        } while (n == -2);
-        n = n < 0 ? 0 : n;          // Fixes n to 0 if n is lower than 0
-        for (int i = 0; i < n; i++) // Formatting to SSID Array like network<|RSSI|>signal
-        {
-            std::string name = "";
-            name = (std::string)((char *)(WiFi.SSID(i).c_str()));
-            if (name != "")
-                ssids.push_back(name + "<|RSSI|>" + std::to_string((int)WiFi.RSSI(i)));
-        }
+        esp_task_wdt_reset();
+        delay(100);
     }
-    Configurator::scanning = false;
-    std::string result = "";
-    for (std::string ssid : ssids) // Formatting to String like <|SPLITTER|>network<|RSSI|>signal...
-    {
-        if (ssid != "")
-            result = result + (std::string) "<|SPLITTER|>" + ssid;
-    }
-    Configurator::ReplaceAll(result, "<|SPLITTER|><|SPLITTER|>", "<|SPLITTER|>"); // Fixes empty networks
-    return n <= 0 ? "None" : result;                                              // Returns none or parsed string
+    return Configurator::networks_string; // Returns none or parsed string
 }
 void Configurator::ReplaceAll(std::string &str, const std::string &from, const std::string &to)
 {
@@ -246,4 +228,50 @@ void Configurator::Deinit()
     WiFi.disconnect();
     WiFi.softAPdisconnect(true);
     Configurator::md5_pwd = "";
+    vTaskDelete(Configurator::scanTaskHandler);
+}
+void Configurator::ScanTaskCode(void *vpPrarameter)
+{
+    while (true)
+    {
+        if (xSemaphoreTake(Configurator::scanSemaphoreHandle, 0))
+        {
+            vector<std::string> ssids;
+            int16_t n = -1;
+
+            if (WiFi.status() != WL_NO_SSID_AVAIL)
+            {
+                Configurator::scanning = true;
+                n = 0;
+                do
+                {
+                    n = WiFi.scanNetworks(true);
+                    do
+                    {
+                        n = WiFi.scanComplete(); // Returns number of networks
+                        delay(50);
+                    } while (n == -1);
+                } while (n == -2);
+                n = n < 0 ? 0 : n;          // Fixes n to 0 if n is lower than 0
+                for (int i = 0; i < n; i++) // Formatting to SSID Array like network<|RSSI|>signal
+                {
+                    std::string name = "";
+                    name = (std::string)((char *)(WiFi.SSID(i).c_str()));
+                    if (name != "")
+                        ssids.push_back(name + "<|RSSI|>" + std::to_string((int)WiFi.RSSI(i)));
+                }
+            }
+            Configurator::scanning = false;
+            std::string result = "";
+            for (std::string ssid : ssids) // Formatting to String like <|SPLITTER|>network<|RSSI|>signal...
+            {
+                if (ssid != "")
+                    result = result + (std::string) "<|SPLITTER|>" + ssid;
+            }
+            Configurator::ReplaceAll(result, "<|SPLITTER|><|SPLITTER|>", "<|SPLITTER|>"); // Fixes empty networks
+            Configurator::networks_string = n <= 0 ? "" : result;
+            xSemaphoreGive(Configurator::sendScanSemaphoreHandle);
+        }
+        // vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
 }

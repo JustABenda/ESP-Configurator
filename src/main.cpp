@@ -51,11 +51,5 @@ int onUpdate(std::string value /*NULL*/)
 
 void loop()
 {
-  if (Configurator::STATUS == "UPDATING")
-  {
-    delay(5000);
-    Configurator::STATUS = "A_REBOOT";
-    delay(15000);
-    Configurator::STATUS = "REBOOTING";
-  }
+  vTaskSuspend(NULL);
 }
