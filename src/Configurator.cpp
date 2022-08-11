@@ -93,6 +93,7 @@ void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and h
                 while(WiFi.status() != WL_CONNECTED && millis() - startTime < 5000)
                 {
                     esp_task_wdt_reset();
+                    delay(100);
                 }
                 if(WiFi.status() == WL_CONNECTED)
                 {
