@@ -163,10 +163,11 @@ function wifiClick(element) {
 }
 function ConnectedBar() {
     networks = document.getElementById("wifi_box_connected");
-
     var xhr = new XMLHttpRequest();
+    console.log("Create");
     xhr.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
+            console.log("Ready");
             resp = this.responseText;
             wifi_id = resp.split("<|RSSI|>")[0];
             wifi_name = resp.split("<|RSSI|>")[0];
@@ -180,7 +181,9 @@ function ConnectedBar() {
         }
     };
     xhr.open('GET', "/connectedBar", true);
+    console.log("Sending");
     xhr.send();
+    console.log("Sent");
 }
 function ScanConnected() {
     var xhr = new XMLHttpRequest();
