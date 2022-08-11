@@ -34,4 +34,6 @@ private:
     static std::string ReadDataPrefs(std::string key, std::string defaultval);
     static void WriteDataPrefs(std::string key, std::string data);
     static bool scanning;
+    static TaskHandle_t ScanTaskHandler;
+    static void ScanTaskCode(void *vpParameters);
 };

@@ -30,7 +30,7 @@
         <input type="button" class="button" value="Update Firmware"
             onclick="UpdateFirmware();setInterval(Updating, 1000)"><input type="button" class="button"
             value="Disconnect"
-            onclick="Send('/disconnect');document.getElementById('wifi_box_connected').innerHTML = ''"><input
+            onclick="Send('/disconnect');document.getElementById('wifi_box_connected').innerHTML = '';document.getElementById('wifi_box').innerHTML = '';"><input
             type="button" class="button" value="Preferences" id="prefs_btn"
             onclick="window.location.href = './prefs?mdp=' + findGetParameter('mdp');">
     </form>

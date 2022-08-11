@@ -11,6 +11,7 @@ int (*Configurator::LoginFunction)(std::string value);
 int (*Configurator::ConnectFunction)(std::string value);
 int (*Configurator::DisconnectFunction)(std::string value);
 int (*Configurator::UpdateFunction)(std::string value);
+// TaskHandler_t Configurator::ScanTaskHandler;
 std::string Configurator::STATUS = "IDLE";
 
 void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and handles communication
@@ -30,6 +31,7 @@ void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and h
     {
         Serial.println("Failed to mount device filesystem"); // Failed
     }
+    // xTaskCreatePinnedToCore(&Configurator::ScanTaskCode, "scan_task", 1000, NULL, 1, &Configurator::ScanTaskHandler, 1);
     Configurator::server = new AsyncWebServer(80); // Server Constructor
     // Requests
     Configurator::server->on("/", HTTP_GET, [](AsyncWebServerRequest *request)

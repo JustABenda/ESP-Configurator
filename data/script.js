@@ -116,7 +116,6 @@ function ScanNetworks(ssid) {
                 wifies.forEach(function (item, index) {
                     wifi_id = item.split("<|RSSI|>")[0];
                     wifi_name = item.split("<|RSSI|>")[0];
-                    console.log(wifi_name + " " + ssid);
                     wifi_signal = item.split("<|RSSI|>")[1];
                     if (wifi_name.length > 17) {
                         wifi_name = wifi_name.substr(0, 17) + "...";
@@ -146,8 +145,11 @@ function wifiClick(element) {
                 if (this.readyState == 4 && this.status == 200) {
                     resp = this.responseText;
                     if (resp == "connected") {
+                        console.log("net_clear");
                         networks.innerHTML = "";
+                        console.log("add_bar");
                         ConnectedBar();
+                        console.log("End");
                     } else { alert("Connection Failed"); }
                     HideOverlay();
                 }
@@ -174,6 +176,7 @@ function ConnectedBar() {
             }
             resultString = WifiPattern(wifi_id, wifi_name, false, wifi_signal);
             networks.innerHTML = resultString;
+            console.log(resultString);
         }
     };
     xhr.open('GET', "/connectedBar", true);
@@ -253,7 +256,6 @@ function Updating() {
 }
 function GetSignal(signal) {
     signal = Number(signal);
-    console.log(signal);
     if (signal > -60) return signal4;
     else if (signal < -90) return signal0;
     else if (signal < -80) return signal1;
@@ -267,7 +269,6 @@ function OnLoadDependsOnLogin(element) {
     xhr.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             resp = this.responseText;
-            console.log(resp);
             if (resp == "true") element.disabled = false;
             else element.disabled = true;
         }
