@@ -167,6 +167,12 @@ void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and h
         } });
     Configurator::server->on("/reset", HTTP_GET, [](AsyncWebServerRequest *request)
                              { Configurator::md5_pwd = ""; });
+    Configurator::server->on("/connectedBar", HTTP_GET, [](AsyncWebServerRequest *request)
+                             { 
+        std::string name = "";
+        name = (std::string)((char *)(WiFi.SSID().c_str()));
+        if (name != "") name = name + "<|RSSI|>" + std::to_string((int)WiFi.RSSI());
+        request->send_P(200, "text/plain", name.c_str()); });
     Configurator::server->begin(); // Start Server
 }
 std::string Configurator::GetNetworks()

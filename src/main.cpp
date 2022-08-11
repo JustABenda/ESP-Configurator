@@ -9,6 +9,8 @@
 #include "SPIFFS.h"
 #include "Configurator.hpp"
 
+#define CONFIG_ASYNC_TCP_USE_WDT 0
+
 int onLogin(std::string value);
 int onConnect(std::string value);
 int onDisconnect(std::string value);

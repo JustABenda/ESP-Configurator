@@ -17,6 +17,10 @@
     onload="UpdateFirmwareVersion();setInterval(checkSearch, 2000);OnLoadDependsOnLogin(document.getElementById('prefs_btn'));">
     <form id="center_form">
         <h3>Firmware Version: <span id="firmware"></span></h3>
+        <h1>Connected Network</h1>
+        <hr>
+        <span id="wifi_box_connected">
+        </span>
         <h1>Available Networks<input type="button" id="submit" value="Scan" onclick="ScanConnected();ShowSearch();">
         </h1>
         <div id="loading" class="loadingOff"></div>
@@ -25,11 +29,13 @@
         </span>
         <input type="button" class="button" value="Update Firmware"
             onclick="UpdateFirmware();setInterval(Updating, 1000)"><input type="button" class="button"
-            value="Disconnect" onclick="Send('/disconnect');"><input type="button" class="button" value="Preferences"
-            id="prefs_btn" onclick="window.location.href = './prefs?mdp=' + findGetParameter('mdp');">
+            value="Disconnect"
+            onclick="Send('/disconnect');document.getElementById('wifi_box_connected').innerHTML = ''"><input
+            type="button" class="button" value="Preferences" id="prefs_btn"
+            onclick="window.location.href = './prefs?mdp=' + findGetParameter('mdp');">
     </form>
     <div id="overlay" class="overlay">
-        <h1>Update in progress</h1>
+        <h1 id="overlay_status"></h1>
     </div>
 </body>
 

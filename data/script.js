@@ -103,9 +103,11 @@ function Send(command) {
 }
 function ScanNetworks(ssid) {
     networks = document.getElementById("wifi_box");
+    networks_c = document.getElementById("wifi_box_connected");
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
+            networks_c.innerHTML = "";
             resp = this.responseText;
             if (resp != "None") {
                 wifies = resp.split("<|SPLITTER|>");
@@ -119,7 +121,7 @@ function ScanNetworks(ssid) {
                     if (wifi_name.length > 17) {
                         wifi_name = wifi_name.substr(0, 17) + "...";
                     }
-                    if (wifi_id == ssid) resultString = resultString + WifiPattern(wifi_id, wifi_name, false, wifi_signal);
+                    if (wifi_id == ssid) networks_c.innerHTML = WifiPattern(wifi_id, wifi_name, false, wifi_signal);
                     else resultString = resultString + WifiPattern(wifi_id, wifi_name, true, wifi_signal);
                 });
                 networks.innerHTML = resultString;
@@ -130,6 +132,7 @@ function ScanNetworks(ssid) {
     xhr.send();
 }
 function wifiClick(element) {
+    networks = document.getElementById("wifi_box");
     ssid = element.id;
     if (element.name == "locked") {
         password = prompt("Enter Wifi password:", "");
@@ -143,16 +146,38 @@ function wifiClick(element) {
                 if (this.readyState == 4 && this.status == 200) {
                     resp = this.responseText;
                     if (resp == "connected") {
-                        alert("Connection Successfull");
-                        ScanConnected();
-                    } else alert("Connection Failed");
+                        networks.innerHTML = "";
+                        ConnectedBar();
+                    } else { alert("Connection Failed"); }
+                    HideOverlay();
                 }
             };
+            ShowOverlay("Connecting");
             alert("Connecting to " + String(ssid));
             xhr.open('GET', "/connect?ssid=" + ssid + "&pwd=" + password + "&mdp=" + findGetParameter("mdp"), true);
             xhr.send();
         }
     }
+}
+function ConnectedBar() {
+    networks = document.getElementById("wifi_box_connected");
+
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            resp = this.responseText;
+            wifi_id = resp.split("<|RSSI|>")[0];
+            wifi_name = resp.split("<|RSSI|>")[0];
+            wifi_signal = resp.split("<|RSSI|>")[1];
+            if (wifi_name.length > 17) {
+                wifi_name = wifi_name.substr(0, 17) + "...";
+            }
+            resultString = WifiPattern(wifi_id, wifi_name, false, wifi_signal);
+            networks.innerHTML = resultString;
+        }
+    };
+    xhr.open('GET', "/connectedBar", true);
+    xhr.send();
 }
 function ScanConnected() {
     var xhr = new XMLHttpRequest();
@@ -184,6 +209,7 @@ function UpdateFirmware() {
         if (this.readyState == 4 && this.status == 200) {
             resp = this.responseText;
             if (resp == "update") {
+                ShowOverlay("Updating");
                 alert("Updating to newer version");
             }
             else if (resp == "e_wifi") alert("WiFi Error");
@@ -195,9 +221,17 @@ function UpdateFirmware() {
     xhr.open('GET', "/update_firmware", true);
     xhr.send();
 }
-function ShowOverlay() {
+function ShowOverlay(text) {
     overlay = document.getElementById("overlay");
+    overlayText = document.getElementById("overlay_status");
     if (!overlay.classList.contains("overlayOn")) overlay.classList.add("overlayOn");
+    overlayText.innerHTML = text;
+}
+function HideOverlay() {
+    overlay = document.getElementById("overlay");
+    overlayText = document.getElementById("overlay_status");
+    if (overlay.classList.contains("overlayOn")) overlay.classList.remove("overlayOn");
+    overlayText.innerHTML = "";
 }
 function Updating() {
     span = document.getElementById("firmware");
@@ -207,7 +241,6 @@ function Updating() {
             resp = this.responseText;
             if (resp == "true") {
                 span.innerHTML = "-> Updating...";
-                ShowOverlay();
             }
             if (resp == "false");
             else if (resp == "a_reboot") span.innerHTML = "Rebooting in 15s";

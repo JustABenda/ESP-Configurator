@@ -25,7 +25,8 @@ body {
     left: 35%;
 }
 
-#center_form #wifi_box a {
+#center_form #wifi_box a,
+#center_form #wifi_box_connected a {
     position: relative;
     background-color: transparent;
     width: 100%;
@@ -46,16 +47,19 @@ body {
     text-align: center;
 }
 
-#center_form #wifi_box label {
+#center_form #wifi_box label,
+#center_form #wifi_box_connected label {
     font-size: 4vh;
 }
 
-#center_form #wifi_box a:hover {
+#center_form #wifi_box a:hover,
+#center_form #wifi_box_connected a:hover {
     background-color: #AAA;
     transition: ease-in-out 0.1s;
 }
 
-#center_form #wifi_box a #lock {
+#center_form #wifi_box a #lock,
+#center_form #wifi_box_connected a #lock {
     position: absolute;
     right: 0.5vh;
     top: 0.5vh;
@@ -63,7 +67,8 @@ body {
     height: 3vh;
 }
 
-#center_form #wifi_box a #signal {
+#center_form #wifi_box a #signal,
+#center_form #wifi_box_connected a #signal {
     position: absolute;
     right: 4.5vh;
     top: 0.5vh;
