@@ -120,15 +120,28 @@ function ScanNetworks(ssid) {
                     if (wifi_name.length > 17) {
                         wifi_name = wifi_name.substr(0, 17) + "...";
                     }
-                    if (wifi_id == ssid) networks_c.innerHTML = WifiPattern(wifi_id, wifi_name, false, wifi_signal);
+                    if (wifi_id == ssid) { networks_c.innerHTML = WifiPattern(wifi_id, wifi_name, false, wifi_signal); EnableControls(); }
                     else resultString = resultString + WifiPattern(wifi_id, wifi_name, true, wifi_signal);
                 });
                 networks.innerHTML = resultString;
             } else networks.innerHTML = "";
         }
     };
+    DisableControls();
     xhr.open('GET', "/wifiscan", true);
     xhr.send();
+}
+function EnableControls() {
+    update_btn = document.getElementById("update_btn");
+    disconnect_btn = document.getElementById("disconnect_btn");
+    update_btn.disabled = false;
+    disconnect_btn.disabled = false;
+}
+function DisableControls() {
+    update_btn = document.getElementById("update_btn");
+    disconnect_btn = document.getElementById("disconnect_btn");
+    update_btn.disabled = true;
+    disconnect_btn.disabled = true;
 }
 function wifiClick(element) {
     networks = document.getElementById("wifi_box");
@@ -147,6 +160,7 @@ function wifiClick(element) {
                     if (resp == "connected") {
                         networks.innerHTML = "";
                         ConnectedBar();
+                        EnableControls();
                     } else { alert("Connection Failed"); }
                     HideOverlay();
                 }

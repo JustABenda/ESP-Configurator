@@ -14,7 +14,7 @@
 </head>
 
 <body
-    onload="UpdateFirmwareVersion();setInterval(checkSearch, 2000);OnLoadDependsOnLogin(document.getElementById('prefs_btn'));">
+    onload="UpdateFirmwareVersion();DisableControls();setInterval(checkSearch, 2000);OnLoadDependsOnLogin(document.getElementById('prefs_btn'));">
     <form id="center_form">
         <h3>Firmware Version: <span id="firmware"></span></h3>
         <h1>Connected Network</h1>
@@ -27,10 +27,10 @@
         <hr>
         <span id="wifi_box">
         </span>
-        <input type="button" class="button" value="Update Firmware"
-            onclick="UpdateFirmware();setInterval(Updating, 1000)"><input type="button" class="button"
-            value="Disconnect"
-            onclick="Send('/disconnect');document.getElementById('wifi_box_connected').innerHTML = '';document.getElementById('wifi_box').innerHTML = '';"><input
+        <input type="button" id="update_btn" class="button" value="Update Firmware"
+            onclick="UpdateFirmware();setInterval(Updating, 1000)"><input type="button" id="disconnect_btn"
+            class="button" value="Disconnect"
+            onclick="Send('/disconnect');DisableControls();document.getElementById('wifi_box_connected').innerHTML = '';document.getElementById('wifi_box').innerHTML = '';"><input
             type="button" class="button" value="Preferences" id="prefs_btn"
             onclick="window.location.href = './prefs?mdp=' + findGetParameter('mdp');">
     </form>
