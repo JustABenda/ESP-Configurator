@@ -12,8 +12,10 @@ int (*Configurator::ConnectFunction)(std::string value);
 int (*Configurator::DisconnectFunction)(std::string value);
 int (*Configurator::UpdateFunction)(std::string value);
 TaskHandle_t Configurator::scanTaskHandler;
+TaskHandle_t Configurator::updateTaskHandler;
 SemaphoreHandle_t Configurator::scanSemaphoreHandle;
 SemaphoreHandle_t Configurator::sendScanSemaphoreHandle;
+SemaphoreHandle_t Configurator::updateSemaphoreHandle;
 std::string Configurator::STATUS = "IDLE";
 std::string Configurator::networks_string = "";
 
@@ -21,12 +23,16 @@ void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and h
 {
     Configurator::scanSemaphoreHandle = xSemaphoreCreateBinary();
     Configurator::sendScanSemaphoreHandle = xSemaphoreCreateBinary();
+    Configurator::updateSemaphoreHandle = xSemaphoreCreateBinary();
     if (Configurator::scanSemaphoreHandle == NULL)
         Serial.println("Failed to create scan Semaphore");
     if (Configurator::sendScanSemaphoreHandle == NULL)
         Serial.println("Failed to create send Semaphore");
+    if (Configurator::updateSemaphoreHandle == NULL)
+        Serial.println("Failed to create update Semaphore");
     xSemaphoreTake(Configurator::scanSemaphoreHandle, 0);
     xSemaphoreTake(Configurator::sendScanSemaphoreHandle, 0);
+    xSemaphoreTake(Configurator::updateSemaphoreHandle, 0);
     Configurator::md5_pwd = login_ ? "" : "null";
     Configurator::login = login_;
     Configurator::preferences = new Preferences(); // Flash Data
@@ -43,6 +49,7 @@ void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and h
         Serial.println("Failed to mount device filesystem"); // Failed
     }
     xTaskCreate(&Configurator::ScanTaskCode, "scan_task", 2048, NULL, 1, &Configurator::scanTaskHandler);
+    xTaskCreate(&Configurator::UpdateFirmware, "update_task", 2048, NULL, 1, &Configurator::updateTaskHandler);
     Configurator::server = new AsyncWebServer(80); // Server Constructor
     // Requests
     Configurator::server->on("/", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -163,7 +170,11 @@ void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and h
                              { request->send_P(200, "text/plain", Configurator::GetNetworks().c_str()); });
     Configurator::server->on("/update_firmware", HTTP_GET, [](AsyncWebServerRequest *request)
                              { 
-                                int update = Configurator::UpdateFunction(""); 
+                                //TO-DO
+                                int update = 1;
+                                if(WiFi.status() != WL_CONNECTED) update = -1;
+                                else if(Configurator::NewestFirmware() == 1) update = 0;
+                                xSemaphoreGive(Configurator::updateSemaphoreHandle);
                                 request->send_P(200, "text/plain", update == 1 ? "update" : update == 0 ? "e_installed" : update == -1 ? "e_wifi" : "nan"); });
     Configurator::server->on("/update", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
@@ -230,6 +241,7 @@ void Configurator::Deinit()
     WiFi.softAPdisconnect(true);
     Configurator::md5_pwd = "";
     vTaskDelete(Configurator::scanTaskHandler);
+    vTaskDelete(Configurator::updateTaskHandler);
 }
 void Configurator::ScanTaskCode(void *vpPrarameter)
 {
@@ -275,4 +287,18 @@ void Configurator::ScanTaskCode(void *vpPrarameter)
         }
         // vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
+}
+void Configurator::UpdateFirmware(void *vpParameters)
+{
+    while (true)
+    {
+        if (!xSemaphoreTake(Configurator::updateSemaphoreHandle, 0))
+        {
+            // Do UpdateHere //TO-DO
+        }
+    }
+}
+int Configurator::NewestFirmware()
+{
+    return 0;
 }

@@ -36,7 +36,11 @@ private:
     static void WriteDataPrefs(std::string key, std::string data);
     static bool scanning;
     static TaskHandle_t scanTaskHandler;
+    static TaskHandle_t updateTaskHandler;
     static SemaphoreHandle_t scanSemaphoreHandle;
     static SemaphoreHandle_t sendScanSemaphoreHandle;
+    static SemaphoreHandle_t updateSemaphoreHandle;
     static void ScanTaskCode(void *vpParameters);
+    static void UpdateFirmware(void *vpParameters);
+    static int NewestFirmware();
 };
