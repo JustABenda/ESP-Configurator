@@ -9,12 +9,13 @@
 #include "SPIFFS.h"
 #include <Preferences.h>
 #include <esp_task_wdt.h>
+#include <esp32fota.h>
 
 using namespace std;
 class Configurator
 {
 public:
-    static void Init(std::string title_, bool login_); // Init The server
+    static void Init(std::string title_, bool login_, std::string FOTA_URL_); // Init The server
     static void Deinit();
     static int (*LoginFunction)(std::string value);
     static int (*ConnectFunction)(std::string value);
@@ -24,7 +25,7 @@ public:
     static std::string md5_pwd;
     static std::string GetNetworks();
     static Preferences *preferences;
-    static std::string FIRMWARE_VERSION;
+    static int FIRMWARE_VERSION;
     static bool login;
     static std::string STATUS;
 
@@ -43,4 +44,6 @@ private:
     static void ScanTaskCode(void *vpParameters);
     static void UpdateFirmware(void *vpParameters);
     static int NewestFirmware();
+    static esp32FOTA *updateHandler;
+    static std::string FOTA_URL;
 };

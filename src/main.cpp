@@ -20,12 +20,12 @@ void setup()
 {
   Serial.begin(115200);
   Serial.println();
-  Configurator::FIRMWARE_VERSION = "v0.0.1";
+  Configurator::FIRMWARE_VERSION = 100;
   Configurator::LoginFunction = &onLogin;
   Configurator::DisconnectFunction = &onDisconnect;
   Configurator::ConnectFunction = &onConnect;
   Configurator::UpdateFunction = &onUpdate;
-  Configurator::Init("ESP Configurator", false); // Configurator::Deinit(); to turn off
+  Configurator::Init("ESP Configurator", false, "http://jakubuvmed.cz/SMART_Wallbox/firmwareWB.json"); // Configurator::Deinit(); to turn off
 }
 int onLogin(std::string value)
 {

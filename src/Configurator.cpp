@@ -1,10 +1,12 @@
 #include "Configurator.hpp"
+
 // Initialize Static Variables
 AsyncWebServer *Configurator::server;
+esp32FOTA *Configurator::updateHandler;
 std::string Configurator::title;
 std::string Configurator::md5_pwd;
 bool Configurator::login;
-std::string Configurator::FIRMWARE_VERSION = "v0.0.0";
+int Configurator::FIRMWARE_VERSION = 0;
 Preferences *Configurator::preferences;
 bool Configurator::scanning = false;
 int (*Configurator::LoginFunction)(std::string value);
@@ -18,8 +20,8 @@ SemaphoreHandle_t Configurator::sendScanSemaphoreHandle;
 SemaphoreHandle_t Configurator::updateSemaphoreHandle;
 std::string Configurator::STATUS = "IDLE";
 std::string Configurator::networks_string = "";
-
-void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and handles communication
+std::string Configurator::FOTA_URL = "";
+void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Runs AsyncWebServer and handles communication
 {
     Configurator::scanSemaphoreHandle = xSemaphoreCreateBinary();
     Configurator::sendScanSemaphoreHandle = xSemaphoreCreateBinary();
@@ -33,6 +35,7 @@ void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and h
     xSemaphoreTake(Configurator::scanSemaphoreHandle, 0);
     xSemaphoreTake(Configurator::sendScanSemaphoreHandle, 0);
     xSemaphoreTake(Configurator::updateSemaphoreHandle, 0);
+    Configurator::FOTA_URL = FOTA_URL_;
     Configurator::md5_pwd = login_ ? "" : "null";
     Configurator::login = login_;
     Configurator::preferences = new Preferences(); // Flash Data
@@ -49,7 +52,9 @@ void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and h
         Serial.println("Failed to mount device filesystem"); // Failed
     }
     xTaskCreate(&Configurator::ScanTaskCode, "scan_task", 2048, NULL, 1, &Configurator::scanTaskHandler);
-    xTaskCreate(&Configurator::UpdateFirmware, "update_task", 2048, NULL, 1, &Configurator::updateTaskHandler);
+    xTaskCreate(&Configurator::UpdateFirmware, "update_task", 3072, NULL, 1, &Configurator::updateTaskHandler);
+    Configurator::updateHandler = new esp32FOTA("esp32-fota-http", Configurator::FIRMWARE_VERSION);
+    Configurator::updateHandler->checkURL = Configurator::FOTA_URL.c_str();
     Configurator::server = new AsyncWebServer(80); // Server Constructor
     // Requests
     Configurator::server->on("/", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -133,7 +138,7 @@ void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and h
     Configurator::server->on("/connected", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", WiFi.SSID().c_str()); });
     Configurator::server->on("/firmware_version", HTTP_GET, [](AsyncWebServerRequest *request)
-                             { request->send_P(200, "text/plain", Configurator::FIRMWARE_VERSION.c_str()); });
+                             { request->send_P(200, "text/plain", std::to_string(Configurator::FIRMWARE_VERSION).c_str()); });
     Configurator::server->on("/username", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", Configurator::ReadDataPrefs("username", "admin").c_str()); });
     Configurator::server->on("/updating", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -174,7 +179,7 @@ void Configurator::Init(string title_, bool login_) // Runs AsyncWebServer and h
                                 int update = 1;
                                 if(WiFi.status() != WL_CONNECTED) update = -1;
                                 else if(Configurator::NewestFirmware() == 1) update = 0;
-                                xSemaphoreGive(Configurator::updateSemaphoreHandle);
+                                else xSemaphoreGive(Configurator::updateSemaphoreHandle);
                                 request->send_P(200, "text/plain", update == 1 ? "update" : update == 0 ? "e_installed" : update == -1 ? "e_wifi" : "nan"); });
     Configurator::server->on("/update", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
@@ -292,13 +297,18 @@ void Configurator::UpdateFirmware(void *vpParameters)
 {
     while (true)
     {
-        if (!xSemaphoreTake(Configurator::updateSemaphoreHandle, 0))
+        if (xSemaphoreTake(Configurator::updateSemaphoreHandle, 0))
         {
-            // Do UpdateHere //TO-DO
+            Configurator::STATUS = "UPDATING";
+            disableCore0WDT();
+            disableCore1WDT();
+            Configurator::updateHandler->execOTA();
+            Serial.println("Updating");
         }
+        delay(50);
     }
 }
 int Configurator::NewestFirmware()
 {
-    return 0;
+    return Configurator::updateHandler->execHTTPcheck() ? 0 : 1;
 }
