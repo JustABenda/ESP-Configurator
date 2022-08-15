@@ -95,6 +95,8 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
         }else request->send_P(200, "text/plain", "failure"); });
     Configurator::server->on("/connect", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
+        disableCore0WDT();
+        disableCore1WDT();
         if(Configurator::login && request->hasParam("mdp")){                        
             if(request->hasParam("ssid") && request->hasParam("pwd")){
                 std::string ssid = (std::string)request->getParam("ssid")->value().c_str();
@@ -105,7 +107,7 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
                 while(WiFi.status() != WL_CONNECTED && millis() - startTime < 5000)
                 {
                     esp_task_wdt_reset();
-                    delay(100);
+                    delay(50);
                 }
                 if(WiFi.status() == WL_CONNECTED)
                 {
@@ -113,7 +115,7 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
                     request->send_P(200, "text/plain", "connected");
                 }
                 else {request->send_P(200, "text/plain", "failure");Serial.println("Failed");}
-            }else request->send_P(200, "text/plain", "failure"); 
+            }else request->send_P(200, "text/plain", "failure");
         }
         else if(!Configurator::login){
             if(request->hasParam("ssid") && request->hasParam("pwd")){
@@ -124,6 +126,7 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
                 while(WiFi.status() != WL_CONNECTED && millis() - startTime < 5000)
                 {
                     esp_task_wdt_reset();
+                    delay(50);
                 }
                 if(WiFi.status() == WL_CONNECTED)
                 {
@@ -132,7 +135,10 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
                 }
                 else {request->send_P(200, "text/plain", "failure");Serial.println("Failed");}
             }else request->send_P(200, "text/plain", "failure"); 
-        } });
+        }
+        enableCore0WDT();
+        enableCore1WDT();    
+    });
     Configurator::server->on("/loginreq", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", Configurator::login ? "true" : "false"); });
     Configurator::server->on("/connected", HTTP_GET, [](AsyncWebServerRequest *request)
