@@ -39,7 +39,7 @@ private:
     static SemaphoreHandle_t updateSemaphoreHandle;
     static void ScanTaskCode(void *vpParameters);
     static void UpdateFirmware(void *vpParameters);
-    static int NewestFirmware();
+    static bool NewestFirmware();
     static esp32FOTA *updateHandler;
     static std::string FOTA_URL;
 };

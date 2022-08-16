@@ -176,7 +176,7 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
                                 //TO-DO
                                 int update = 1;
                                 if(WiFi.status() != WL_CONNECTED) update = -1;
-                                else if(Configurator::NewestFirmware() == 1) update = 0;
+                                else if(Configurator::NewestFirmware()) update = 0;
                                 else xSemaphoreGive(Configurator::updateSemaphoreHandle);
                                 request->send_P(200, "text/plain", update == 1 ? "update" : update == 0 ? "e_installed" : update == -1 ? "e_wifi" : "nan"); });
     Configurator::server->on("/update", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -306,7 +306,7 @@ void Configurator::UpdateFirmware(void *vpParameters)
         delay(50);
     }
 }
-int Configurator::NewestFirmware()
+bool Configurator::NewestFirmware()
 {
-    return Configurator::updateHandler->execHTTPcheck() ? 0 : 1;
+    return Configurator::updateHandler->execHTTPcheck();
 }
