@@ -11,26 +11,39 @@ Preferences *Configurator::preferences;
 bool Configurator::scanning = false;
 TaskHandle_t Configurator::scanTaskHandler;
 TaskHandle_t Configurator::updateTaskHandler;
+TaskHandle_t Configurator::connectTaskHandler;
 SemaphoreHandle_t Configurator::scanSemaphoreHandle;
 SemaphoreHandle_t Configurator::sendScanSemaphoreHandle;
 SemaphoreHandle_t Configurator::updateSemaphoreHandle;
+SemaphoreHandle_t Configurator::connectSemaphoreHandle;
+SemaphoreHandle_t Configurator::connectedSemaphoreHandle;
 std::string Configurator::STATUS = "IDLE";
 std::string Configurator::networks_string = "";
 std::string Configurator::FOTA_URL = "";
+std::string Configurator::ssid_c = "";
+std::string Configurator::pass_c = "";
 void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Runs AsyncWebServer and handles communication
 {
     Configurator::scanSemaphoreHandle = xSemaphoreCreateBinary();
     Configurator::sendScanSemaphoreHandle = xSemaphoreCreateBinary();
     Configurator::updateSemaphoreHandle = xSemaphoreCreateBinary();
+    Configurator::connectSemaphoreHandle = xSemaphoreCreateBinary();
+    Configurator::connectedSemaphoreHandle = xSemaphoreCreateBinary();
     if (Configurator::scanSemaphoreHandle == NULL)
         Serial.println("Failed to create scan Semaphore");
     if (Configurator::sendScanSemaphoreHandle == NULL)
         Serial.println("Failed to create send Semaphore");
     if (Configurator::updateSemaphoreHandle == NULL)
         Serial.println("Failed to create update Semaphore");
+    if (Configurator::connectSemaphoreHandle == NULL)
+        Serial.println("Failed to create connect Semaphore");
+    if (Configurator::connectedSemaphoreHandle == NULL)
+        Serial.println("Failed to create connected Semaphore");
     xSemaphoreTake(Configurator::scanSemaphoreHandle, 0);
     xSemaphoreTake(Configurator::sendScanSemaphoreHandle, 0);
     xSemaphoreTake(Configurator::updateSemaphoreHandle, 0);
+    xSemaphoreTake(Configurator::connectSemaphoreHandle, 0);
+    xSemaphoreTake(Configurator::connectedSemaphoreHandle, 0);
     Configurator::FOTA_URL = FOTA_URL_;
     Configurator::md5_pwd = login_ ? "" : "null";
     Configurator::login = login_;
@@ -49,6 +62,7 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
     }
     xTaskCreate(&Configurator::ScanTaskCode, "scan_task", 2048, NULL, 1, &Configurator::scanTaskHandler);
     xTaskCreate(&Configurator::UpdateFirmware, "update_task", 3072, NULL, 1, &Configurator::updateTaskHandler);
+    xTaskCreate(&Configurator::ConnectTaskCode, "connect_task", 3072, NULL, 1, &Configurator::connectTaskHandler);
     Configurator::updateHandler = new esp32FOTA("esp32-fota-http", Configurator::FIRMWARE_VERSION);
     Configurator::updateHandler->checkURL = Configurator::FOTA_URL.c_str();
     Configurator::server = new AsyncWebServer(80); // Server Constructor
@@ -91,13 +105,13 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
         }else request->send_P(200, "text/plain", "failure"); });
     Configurator::server->on("/connect", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
-        disableCore0WDT();
-        disableCore1WDT();
         if(Configurator::login && request->hasParam("mdp")){                        
             if(request->hasParam("ssid") && request->hasParam("pwd")){
                 std::string ssid = (std::string)request->getParam("ssid")->value().c_str();
                 std::string pwd = (std::string)request->getParam("pwd")->value().c_str();
                 std::string md5 = (std::string)request->getParam("mdp")->value().c_str();
+                Configurator::ssid_c = ssid;
+                Configurator::pass_c = pwd;
                 WiFi.begin(ssid.c_str(), pwd.c_str());
                 unsigned long startTime = millis();
                 while(WiFi.status() != WL_CONNECTED && millis() - startTime < 5000)
@@ -116,22 +130,18 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
             if(request->hasParam("ssid") && request->hasParam("pwd")){
                 std::string ssid = (std::string)request->getParam("ssid")->value().c_str();
                 std::string pwd = (std::string)request->getParam("pwd")->value().c_str();
-                WiFi.begin(ssid.c_str(), pwd.c_str());
-                unsigned long startTime = millis();
-                while(WiFi.status() != WL_CONNECTED && millis() - startTime < 5000)
+                Configurator::ssid_c = ssid;
+                Configurator::pass_c = pwd;
+                xSemaphoreGive(Configurator::connectSemaphoreHandle);
+                while (!xSemaphoreTake(Configurator::connectedSemaphoreHandle, 0))
                 {
                     esp_task_wdt_reset();
-                    delay(50);
+                    delay(100);
                 }
-                if(WiFi.status() == WL_CONNECTED)
-                {
-                    request->send_P(200, "text/plain", "connected");
-                }
-                else {request->send_P(200, "text/plain", "failure");Serial.println("Failed");}
+                if(WiFi.status() == WL_CONNECTED) request->send_P(200, "text/plain", "connected");
+                else request->send_P(200, "text/plain", "failure");
             }else request->send_P(200, "text/plain", "failure"); 
-        }
-        enableCore0WDT();
-        enableCore1WDT(); });
+        } });
     Configurator::server->on("/loginreq", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", Configurator::login ? "true" : "false"); });
     Configurator::server->on("/connected", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -302,6 +312,24 @@ void Configurator::UpdateFirmware(void *vpParameters)
             disableCore1WDT();
             Configurator::updateHandler->execOTA();
             Serial.println("Updating");
+        }
+        delay(50);
+    }
+}
+void Configurator::ConnectTaskCode(void *vpParameters)
+{
+    while (true)
+    {
+        if (xSemaphoreTake(Configurator::connectSemaphoreHandle, 0))
+        {
+            WiFi.begin(Configurator::ssid_c.c_str(), Configurator::pass_c.c_str());
+            unsigned long startTime = millis();
+            while (WiFi.status() != WL_CONNECTED && millis() - startTime < 5000)
+            {
+                esp_task_wdt_reset();
+                delay(50);
+            }
+            xSemaphoreGive(Configurator::connectedSemaphoreHandle);
         }
         delay(50);
     }

@@ -34,12 +34,18 @@ private:
     static bool scanning;
     static TaskHandle_t scanTaskHandler;
     static TaskHandle_t updateTaskHandler;
+    static TaskHandle_t connectTaskHandler;
     static SemaphoreHandle_t scanSemaphoreHandle;
     static SemaphoreHandle_t sendScanSemaphoreHandle;
     static SemaphoreHandle_t updateSemaphoreHandle;
+    static SemaphoreHandle_t connectSemaphoreHandle;
+    static SemaphoreHandle_t connectedSemaphoreHandle;
     static void ScanTaskCode(void *vpParameters);
     static void UpdateFirmware(void *vpParameters);
+    static void ConnectTaskCode(void *vpParameters);
     static bool NewestFirmware();
     static esp32FOTA *updateHandler;
     static std::string FOTA_URL;
+    static std::string ssid_c;
+    static std::string pass_c;
 };
