@@ -17,10 +17,6 @@ class Configurator
 public:
     static void Init(std::string title_, bool login_, std::string FOTA_URL_); // Init The server
     static void Deinit();
-    static int (*LoginFunction)(std::string value);
-    static int (*ConnectFunction)(std::string value);
-    static int (*DisconnectFunction)(std::string value);
-    static int (*UpdateFunction)(std::string value);
     static std::string title;
     static std::string md5_pwd;
     static std::string GetNetworks();

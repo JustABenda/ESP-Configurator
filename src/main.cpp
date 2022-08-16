@@ -11,44 +11,13 @@
 
 #define CONFIG_ASYNC_TCP_USE_WDT 0
 
-int onLogin(std::string value);
-int onConnect(std::string value);
-int onDisconnect(std::string value);
-int onUpdate(std::string value);
-
 void setup()
 {
   Serial.begin(115200);
   Serial.println();
   Configurator::FIRMWARE_VERSION = 100;
-  Configurator::LoginFunction = &onLogin;
-  Configurator::DisconnectFunction = &onDisconnect;
-  Configurator::ConnectFunction = &onConnect;
-  Configurator::UpdateFunction = &onUpdate;
   Configurator::Init("ESP Configurator", false, "http://jakubuvmed.cz/SMART_Wallbox/firmwareWB.json"); // Configurator::Deinit(); to turn off
 }
-int onLogin(std::string value)
-{
-  Serial.println(value.c_str());
-  return 0;
-}
-int onConnect(std::string ssid)
-{
-  Serial.println(ssid.c_str());
-  return 0;
-}
-int onDisconnect(std::string arg /*NULL*/)
-{
-  Serial.println("Disconnected");
-  return 0;
-}
-int onUpdate(std::string value /*NULL*/)
-{
-  Serial.println("Updating");
-  Configurator::STATUS = "UPDATING";
-  return 1; // 0 for already newest, 1 for Update -1 error_wifi other for unknown error
-}
-
 void loop()
 {
   vTaskSuspend(NULL);

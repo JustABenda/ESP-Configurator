@@ -9,10 +9,6 @@ bool Configurator::login;
 int Configurator::FIRMWARE_VERSION = 0;
 Preferences *Configurator::preferences;
 bool Configurator::scanning = false;
-int (*Configurator::LoginFunction)(std::string value);
-int (*Configurator::ConnectFunction)(std::string value);
-int (*Configurator::DisconnectFunction)(std::string value);
-int (*Configurator::UpdateFunction)(std::string value);
 TaskHandle_t Configurator::scanTaskHandler;
 TaskHandle_t Configurator::updateTaskHandler;
 SemaphoreHandle_t Configurator::scanSemaphoreHandle;
@@ -90,7 +86,7 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
             std::string pwd = (std::string)request->getParam("pwd")->value().c_str();
             std::string md5 = (std::string)request->getParam("mdp")->value().c_str();
             if (uname == Configurator::ReadDataPrefs("username", "admin") && pwd == Configurator::ReadDataPrefs("password", "admin"))
-            {request->send_P(200, "text/plain", "success");Configurator::md5_pwd = md5;Configurator::LoginFunction(uname);}
+            {request->send_P(200, "text/plain", "success");Configurator::md5_pwd = md5;}
             else request->send_P(200, "text/plain", "failure");
         }else request->send_P(200, "text/plain", "failure"); });
     Configurator::server->on("/connect", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -111,7 +107,6 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
                 }
                 if(WiFi.status() == WL_CONNECTED)
                 {
-                    Configurator::ConnectFunction(ssid);
                     request->send_P(200, "text/plain", "connected");
                 }
                 else {request->send_P(200, "text/plain", "failure");Serial.println("Failed");}
@@ -130,15 +125,13 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
                 }
                 if(WiFi.status() == WL_CONNECTED)
                 {
-                    Configurator::ConnectFunction(ssid);
                     request->send_P(200, "text/plain", "connected");
                 }
                 else {request->send_P(200, "text/plain", "failure");Serial.println("Failed");}
             }else request->send_P(200, "text/plain", "failure"); 
         }
         enableCore0WDT();
-        enableCore1WDT();    
-    });
+        enableCore1WDT(); });
     Configurator::server->on("/loginreq", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", Configurator::login ? "true" : "false"); });
     Configurator::server->on("/connected", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -155,8 +148,7 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
                              { Serial.println(Configurator::scanning);request->send_P(200, "text/plain", Configurator::scanning ? "scanning" : "not"); });
     Configurator::server->on("/disconnect", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
-        if(WiFi.status() == WL_CONNECTED) WiFi.disconnect();
-        Configurator::DisconnectFunction(""); });
+        if(WiFi.status() == WL_CONNECTED) WiFi.disconnect(); });
     Configurator::server->on("/index", HTTP_GET, [](AsyncWebServerRequest *request)
                              {
         if(!Configurator::login){
