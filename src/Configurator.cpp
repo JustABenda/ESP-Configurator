@@ -336,5 +336,5 @@ void Configurator::ConnectTaskCode(void *vpParameters)
 }
 bool Configurator::NewestFirmware()
 {
-    return Configurator::updateHandler->execHTTPcheck();
+    return !Configurator::updateHandler->execHTTPcheck();
 }
