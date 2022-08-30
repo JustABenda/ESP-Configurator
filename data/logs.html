@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="icon" href="./imgs/favicon.png">
+    <link rel="stylesheet" href="./style.css">
+    <script src="./script.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Updating firmware" />
+    <meta name="author" content="Filip Benda" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>Logs</title>
+</head>
+
+<body
+    onload="InitTime();">
+    <form id="center_form_sf" style="font-size: 2vh;">
+        <h3>Device Logs: <span id="firmware"></span></h3>
+        <hr>
+        From<br><input type="datetime-local" id="from_date" onchange="UpdateTable()"><br>to<br>
+        <input type="datetime-local" id="to_date" onchange="UpdateTable()">
+        <br><br>
+        <div style="max-height: 50%;height: 50%;width: 100%;overflow:scroll;">
+            <table id="record_table">
+                <tr>
+                    <th>ID</th>
+                    <th>DateTime</th>
+                    <th>Action</th>
+                    <th>Information</th>
+                </tr>
+            </table>
+        </div>
+        <br>
+        <input type="button" id="download_btn" value="Download CSV" onclick="DownloadCSV()">
+    </form>
+</body>
+
+</html>

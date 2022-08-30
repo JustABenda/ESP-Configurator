@@ -27,6 +27,38 @@ function checkSearch() {
     xhr.open('GET', "/search", true);
     xhr.send();
 }
+function InitTime(){
+    from_date = document.getElementById("from_date");
+    to_date = document.getElementById("to_date");
+    today = new Date().toLocaleString();
+    today = today.split(", ");
+    today[0] = today[0].replaceAll("/", "-");
+    today[2] = today[1].split(" ")[1];
+    today[1] = today[1].split(" ")[0];
+    today[1] = today[2] == "AM" ? today[1] : (parseInt(today[1].split(":")[0])+12).toString() + ":" + today[1].split(":")[1] + ":" + today[1].split(":")[2];
+    temp_t = today[0].split("-");
+    temp_t = [temp_t[2], temp_t[0], temp_t[1]];
+    today[0] = "";
+    for(i = 0; i < temp_t.length; i++){
+        tmp = (temp_t[i].length < 2 ? "0" + temp_t[i] : temp_t[i]);
+        today[0] = today[0] + (tmp.length < 2 ? "0" + tmp : tmp) + "-";
+    }
+    today[0] = today[0].slice(0, -1);
+    temp_t = today[1].split(":");
+    today[1] = "";
+    for(i = 0; i < temp_t.length-1; i++){
+        today[1] = today[1] + (temp_t[i].length < 2 ? "0" + temp_t[i] : temp_t[i]) + ":";
+    }
+    today[1] = today[1].slice(0, -1);
+    today = today[0] + "T" + today[1];
+    //Set Values
+    from_date.min = "2000-01-01T00:00";
+    from_date.value = "2000-01-01T00:00";
+    from_date.max = today;
+    to_date.min = "2000-01-01T00:00";
+    to_date.value = today;
+    to_date.max = today;
+}
 function ShowSearch() {
     loader = document.getElementById("loading");
     if (!loader.classList.contains("loadingOn")) {
@@ -263,6 +295,60 @@ function Updating() {
     xhr.open('GET', "/updating", true);
     xhr.send();
 }
+function UpdateTable(){
+    dt1 = document.getElementById("from_date").value.replace("T", " ");
+    dt2 = document.getElementById("to_date").value.replace("T", " ");
+    records = document.getElementById("record_table");
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            resp = this.responseText;
+            if(resp == "") return;
+            table = resp.split("@");
+            table = table.slice(0, -1);
+            for(i = 0; i < table.length; i++){
+                table[i] = table[i].split("|");
+            }
+            records.innerHTML = CreateTableElements(table);
+        }
+    };
+    xhr.open('GET', "/downloadcsv?from=" + dt1 + "&to=" + dt2, true);
+    xhr.send();
+}
+function DownloadCSV(){
+    dt1 = document.getElementById("from_date").value.replace("T", " ");
+    dt2 = document.getElementById("to_date").value.replace("T", " ");
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            resp = this.responseText;
+            if(resp == "") return;
+            table = resp.split("@");
+            table = table.slice(0, -1);
+            for(i = 0; i < table.length; i++){
+                table[i] = table[i].split("|");
+            }
+            csv_data = "";
+            table.forEach(function (row, index) {
+                row.forEach(function (item, index) {
+                    csv_data = csv_data + item + ",";
+                });
+                csv_data = csv_data + "\n";
+            });
+            CSVFile = new Blob([csv_data], {type: "text/csv"});
+            var temp_link = document.createElement("a");
+            temp_link.download = "log_" + dt1.replace(" ", "-") + "_" + dt2.replace(" ", "-") + ".csv";
+            var url = window.URL.createObjectURL(CSVFile);
+            temp_link.href = url;
+            temp_link.style.display = "None";
+            document.body.appendChild(temp_link);
+            temp_link.click();
+            document.body.removeChild(temp_link);
+        }
+    };
+    xhr.open('GET', "/downloadcsv?from=" + dt1 + "&to=" + dt2, true);
+    xhr.send();
+}
 function GetSignal(signal) {
     signal = Number(signal);
     if (signal > -60) return signal4;
@@ -296,4 +382,13 @@ function findGetParameter(parameterName) {
             if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
         });
     return result;
+}
+function CreateTableElements(data_rec){
+    pattern = "<tr><th>ID</th><th>DT</th><th>AC</th><th>IF</th></tr>";
+    top = "<tr><th>ID</th><th>DateTime</th><th>Action</th><th>Information</th></tr>";
+    data_all = pattern.replace("ID", "ID").replace("DT", "DateTime").replace("AC", "Action").replace("IF", "Information");
+    data_rec.forEach(function (item, index) {
+        data_all = data_all + pattern.replace("ID", item[0]).replace("DT", item[1]).replace("AC", item[2]).replace("IF", item[3]);
+    });
+    return data_all;
 }

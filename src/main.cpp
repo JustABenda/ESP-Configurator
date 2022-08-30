@@ -15,6 +15,11 @@ void setup()
 {
   Serial.begin(115200);
   Serial.println();
+  if (!SPIFFS.begin())                                                                                                         // WebServer files
+  {
+      Serial.println("Failed to mount device filesystem"); // Failed
+  }
+  DatabaseHandler::Init();
   Configurator::FIRMWARE_VERSION = 100;
   Configurator::Init("ESP Configurator", false, "http://jakubuvmed.cz/SMART_Wallbox/firmwareWB.json"); // Configurator::Deinit(); to turn off
 }

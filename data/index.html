@@ -33,6 +33,7 @@
             onclick="Send('/disconnect');DisableControls();document.getElementById('wifi_box_connected').innerHTML = '';document.getElementById('wifi_box').innerHTML = '';"><input
             type="button" class="button" value="Preferences" id="prefs_btn"
             onclick="window.location.href = './prefs?mdp=' + findGetParameter('mdp');">
+            <input type="button" class="button" value="Logs" id="logs_btn" onclick="window.location.href = './logs?mdp=' + findGetParameter('mdp');">
     </form>
     <div id="overlay" class="overlay">
         <h1 id="overlay_status"></h1>

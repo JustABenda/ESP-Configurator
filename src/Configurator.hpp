@@ -10,6 +10,7 @@
 #include <Preferences.h>
 #include <esp_task_wdt.h>
 #include <esp32fota.h>
+#include "DatabaseHandler.hpp"
 
 using namespace std;
 class Configurator

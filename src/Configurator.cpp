@@ -56,10 +56,6 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
     WiFi.disconnect();
     WiFi.softAPConfig(localIP, gateway, subnet);                                                                                 // Configure AP
     WiFi.softAP((String("ESP32 ") + WiFi.macAddress()).c_str(), Configurator::ReadDataPrefs("ap_password", "rootroot").c_str()); // Starts AP
-    if (!SPIFFS.begin())                                                                                                         // WebServer files
-    {
-        Serial.println("Failed to mount device filesystem"); // Failed
-    }
     xTaskCreate(&Configurator::ScanTaskCode, "scan_task", 2048, NULL, 1, &Configurator::scanTaskHandler);
     xTaskCreate(&Configurator::UpdateFirmware, "update_task", 3072, NULL, 1, &Configurator::updateTaskHandler);
     xTaskCreate(&Configurator::ConnectTaskCode, "connect_task", 3072, NULL, 1, &Configurator::connectTaskHandler);
@@ -179,6 +175,16 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
             if(Configurator::md5_pwd == md5) request->send(SPIFFS, "/preferences.html", "text/html");
             else request->send(SPIFFS, "/login.html", "text/html");
         }else request->send(SPIFFS, "/login.html", "text/html"); });
+    Configurator::server->on("/logs", HTTP_GET, [](AsyncWebServerRequest *request)
+                             {
+        if(!Configurator::login){
+            request->send(SPIFFS, "/logs.html", "text/html");
+        }
+        else if(request->hasParam("mdp") && Configurator::login){
+            std::string md5 = (std::string)request->getParam("mdp")->value().c_str();
+            if(Configurator::md5_pwd == md5) request->send(SPIFFS, "/logs.html", "text/html");
+            else request->send(SPIFFS, "/login.html", "text/html");
+        }else request->send(SPIFFS, "/login.html", "text/html"); });
     Configurator::server->on("/wifiscan", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", Configurator::GetNetworks().c_str()); });
     Configurator::server->on("/update_firmware", HTTP_GET, [](AsyncWebServerRequest *request)
@@ -203,6 +209,15 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
                 if(key == "reload" && Configurator::login) Configurator::md5_pwd = "";
             }
         } });
+    Configurator::server->on("/downloadcsv", HTTP_GET, [](AsyncWebServerRequest *request){
+        std::string from_date = (std::string)request->getParam("from")->value().c_str();
+        std::string to_date = (std::string)request->getParam("to")->value().c_str();
+        Serial.print("Sending logs from interval:");
+        Serial.print(from_date.c_str());
+        Serial.print(" -> ");
+        Serial.println(to_date.c_str());
+        request->send_P(200, "text/plain", DatabaseHandler::getLogs(from_date, to_date).c_str());
+    });
     Configurator::server->on("/reset", HTTP_GET, [](AsyncWebServerRequest *request)
                              { Configurator::md5_pwd = ""; });
     Configurator::server->on("/connectedBar", HTTP_GET, [](AsyncWebServerRequest *request)

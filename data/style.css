@@ -25,6 +25,14 @@ body {
     left: 35%;
 }
 
+#center_form_sf {
+    position: absolute;
+    top: 12%;
+    height: 80%;
+    width: 30%;
+    left: 35%;
+}
+
 #center_form #wifi_box a,
 #center_form #wifi_box_connected a {
     position: relative;
@@ -172,6 +180,23 @@ body {
 #overlay h1 {
     font-size: 10vh;
 }
+table {
+    height: auto;
+    font-family: arial, sans-serif;
+    font-size: small;
+    border-collapse: collapse;
+    width: 100%;
+}
+  
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+  
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
 
 @media screen and (max-width: 800px) and (min-height: 500px) {
 
@@ -215,9 +240,19 @@ body {
         width: 100%;
         left: 0px;
     }
+    #center_form_sf {
+        position: absolute;
+        top: 5%;
+        height: 80%;
+        width: 100%;
+        left: 0px;
+    }
 
     #overlay h1 {
         font-size: 5vh;
+    }
+    table{
+        font-size: small;
     }
 }
 
@@ -259,5 +294,15 @@ body {
 
     #overlay h1 {
         font-size: 5vh;
+    }
+    #center_form_sf {
+        position: absolute;
+        top: 5%;
+        height: 80%;
+        width: 100%;
+        left: 0px;
+    }
+    table{
+        font-size: small;
     }
 }
