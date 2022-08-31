@@ -15,11 +15,13 @@ class DatabaseHandler
 public:
     static void Init();
     static void Execute(std::string command);
-    static void Log();
+    static void Log(std::string time, std::string action, std::string params);
     static std::string SELECT_ALL();
     static std::string getLogs(std::string from_date, std::string to_date);
 private:
     static sqlite3 *database;
     static sqlite3_stmt *resource;
     static const char *tail;
+    static int callback(void *data, int argc, char **argv, char **azColName);
+    static const char* data;
 };

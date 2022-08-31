@@ -22,6 +22,7 @@ void setup()
   DatabaseHandler::Init();
   Configurator::FIRMWARE_VERSION = 100;
   Configurator::Init("ESP Configurator", false, "http://jakubuvmed.cz/SMART_Wallbox/firmwareWB.json"); // Configurator::Deinit(); to turn off
+  DatabaseHandler::Log("2022-80-30 19:35:00", "INFO", "STARTED");
 }
 void loop()
 {
