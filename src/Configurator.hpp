@@ -32,6 +32,7 @@ private:
     static std::string ReadDataPrefs(std::string key, std::string defaultval);
     static std::string networks_string;
     static void WriteDataPrefs(std::string key, std::string data);
+    static void WiFiEventHandlerFunc(WiFiEvent_t event);
     static bool scanning;
     static TaskHandle_t scanTaskHandler;
     static TaskHandle_t updateTaskHandler;
@@ -49,4 +50,5 @@ private:
     static std::string FOTA_URL;
     static std::string ssid_c;
     static std::string pass_c;
+    static int connected_devices;
 };

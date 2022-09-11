@@ -14,7 +14,7 @@
 </head>
 
 <body
-    onload="UpdateFirmwareVersion();DisableControls();setInterval(checkSearch, 2000);OnLoadDependsOnLogin(document.getElementById('prefs_btn'));">
+    onload="UpdateFirmwareVersion();DisableControls();setInterval(checkSearch, 2000);OnLoadDependsOnLogin(document.getElementById('prefs_btn'));SyncTime();">
     <form id="center_form">
         <h3>Firmware Version: <span id="firmware"></span></h3>
         <h1>Connected Network</h1>
@@ -34,6 +34,7 @@
             type="button" class="button" value="Preferences" id="prefs_btn"
             onclick="window.location.href = './prefs?mdp=' + findGetParameter('mdp');">
             <input type="button" class="button" value="Logs" id="logs_btn" onclick="window.location.href = './logs?mdp=' + findGetParameter('mdp');">
+            <input type="button" class="button" value="Sync Time" id="sync_btn" onclick="SyncTime();">
     </form>
     <div id="overlay" class="overlay">
         <h1 id="overlay_status"></h1>

@@ -392,3 +392,37 @@ function CreateTableElements(data_rec){
     });
     return data_all;
 }
+function SyncTime(){
+    today = new Date().toLocaleString();
+    today = today.split(", ");
+    today[0] = today[0].replaceAll("/", "-");
+    today[2] = today[1].split(" ")[1];
+    today[1] = today[1].split(" ")[0];
+    today[1] = today[2] == "AM" ? today[1] : (parseInt(today[1].split(":")[0])+12).toString() + ":" + today[1].split(":")[1] + ":" + today[1].split(":")[2];
+    temp_t = today[0].split("-");
+    temp_t = [temp_t[2], temp_t[0], temp_t[1]];
+    today[0] = "";
+    for(i = 0; i < temp_t.length; i++){
+        tmp = (temp_t[i].length < 2 ? "0" + temp_t[i] : temp_t[i]);
+        today[0] = today[0] + (tmp.length < 2 ? "0" + tmp : tmp) + "-";
+    }
+    today[0] = today[0].slice(0, -1);
+    temp_t = today[1].split(":");
+    today[1] = "";
+    for(i = 0; i < temp_t.length; i++){
+        today[1] = today[1] + (temp_t[i].length < 2 ? "0" + temp_t[i] : temp_t[i]) + ":";
+    }
+    today[1] = today[1].slice(0, -1);
+    today = today[0] + "T" + today[1];
+    console.log(today);
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            resp = this.responseText;
+            if (resp == "true") console.log("Time synced");
+            else console.log("Current/Unknown Error");
+        }
+    };
+    xhr.open('GET', "/sync_time?time=" + today, true);
+    xhr.send();
+}

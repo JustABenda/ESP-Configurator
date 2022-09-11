@@ -22,6 +22,7 @@ std::string Configurator::networks_string = "";
 std::string Configurator::FOTA_URL = "";
 std::string Configurator::ssid_c = "";
 std::string Configurator::pass_c = "";
+int Configurator::connected_devices = 0;
 void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Runs AsyncWebServer and handles communication
 {
     Configurator::scanSemaphoreHandle = xSemaphoreCreateBinary();
@@ -209,6 +210,14 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
                 if(key == "reload" && Configurator::login) Configurator::md5_pwd = "";
             }
         } });
+    Configurator::server->on("/sync_time", HTTP_GET, [](AsyncWebServerRequest *request)
+    {
+        if(request->hasParam("time")){
+            std::string new_time = (std::string)request->getParam("time")->value().c_str();
+            Serial.println(new_time.c_str());
+            request->send_P(200, "text/plain", "true");
+        } else request->send_P(200, "text/plain", "false");
+    });
     Configurator::server->on("/downloadcsv", HTTP_GET, [](AsyncWebServerRequest *request){
         std::string from_date = (std::string)request->getParam("from")->value().c_str();
         std::string to_date = (std::string)request->getParam("to")->value().c_str();
@@ -227,6 +236,38 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
         if (name != "") name = name + "<|RSSI|>" + std::to_string((int)WiFi.RSSI());
         request->send_P(200, "text/plain", name.c_str()); });
     Configurator::server->begin(); // Start Server
+    WiFi.onEvent(Configurator::WiFiEventHandlerFunc);
+    int start = millis();
+    while(Configurator::connected_devices == 0 && millis() - start <= 30000) {Serial.println((millis()-start)/1000);delay(100);};
+    if(Configurator::connected_devices == 0){
+        Configurator::Deinit();
+    }else {
+        while(Configurator::connected_devices > 0) delay(100);
+        Configurator::Deinit();
+    }
+}
+void Configurator::Deinit()
+{
+    Serial.println("Deinit Server");
+    Configurator::server->end();
+    WiFi.disconnect();
+    WiFi.softAPdisconnect(true);
+    Configurator::md5_pwd = "";
+    vTaskDelete(Configurator::scanTaskHandler);
+    vTaskDelete(Configurator::updateTaskHandler);
+    //ESP.restart();
+}
+void Configurator::WiFiEventHandlerFunc(WiFiEvent_t event){
+    switch (event)
+    {
+        case 12:
+            Configurator::connected_devices++;
+            break;
+        case 13:
+            Configurator::connected_devices--;
+            break;
+        default: break;
+    }
 }
 std::string Configurator::GetNetworks()
 {
@@ -261,15 +302,6 @@ void Configurator::WriteDataPrefs(std::string key, std::string data) // Writes D
     Configurator::preferences->begin("credentials_", false);
     Configurator::preferences->putString(key.c_str(), String(data.c_str()));
     Configurator::preferences->end();
-}
-void Configurator::Deinit()
-{
-    Configurator::server->end();
-    WiFi.disconnect();
-    WiFi.softAPdisconnect(true);
-    Configurator::md5_pwd = "";
-    vTaskDelete(Configurator::scanTaskHandler);
-    vTaskDelete(Configurator::updateTaskHandler);
 }
 void Configurator::ScanTaskCode(void *vpPrarameter)
 {
