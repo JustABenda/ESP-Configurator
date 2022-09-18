@@ -1,5 +1,5 @@
 #include "Configurator.hpp"
-
+#define DEBUG 1
 // Initialize Static Variables
 AsyncWebServer *Configurator::server;
 esp32FOTA *Configurator::updateHandler;
@@ -23,8 +23,15 @@ std::string Configurator::FOTA_URL = "";
 std::string Configurator::ssid_c = "";
 std::string Configurator::pass_c = "";
 int Configurator::connected_devices = 0;
+Configurator::APStatus Configurator::ap_status;
 void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Runs AsyncWebServer and handles communication
 {
+    Configurator::ap_status = Configurator::APStatus::NONE;
+    esp_reset_reason_t reset_reason = esp_reset_reason();
+    if(reset_reason == ESP_RST_SW) {
+        Configurator::ap_status = Configurator::APStatus::OFF;
+        return;
+    }
     Configurator::scanSemaphoreHandle = xSemaphoreCreateBinary();
     Configurator::sendScanSemaphoreHandle = xSemaphoreCreateBinary();
     Configurator::updateSemaphoreHandle = xSemaphoreCreateBinary();
@@ -237,17 +244,34 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
         request->send_P(200, "text/plain", name.c_str()); });
     Configurator::server->begin(); // Start Server
     WiFi.onEvent(Configurator::WiFiEventHandlerFunc);
-    int start = millis();
-    while(Configurator::connected_devices == 0 && millis() - start <= 30000) {Serial.println((millis()-start)/1000);delay(100);};
-    if(Configurator::connected_devices == 0){
-        Configurator::Deinit();
-    }else {
-        while(Configurator::connected_devices > 0) delay(100);
-        Configurator::Deinit();
+    int waitAttemps = 1;
+    while(waitAttemps <= 1){
+        if(Configurator::WaitForClient()){
+            Configurator::ap_status = Configurator::APStatus::RUNNING;
+            waitAttemps = 0;
+            while(Configurator::connected_devices > 0) delay(100);
+            waitAttemps = 1;
+        }
+        else waitAttemps = 2;
     }
+    Configurator::Deinit();
+}
+Configurator::APStatus Configurator::getAPStatus(){
+    return Configurator::ap_status;
+}
+bool Configurator::WaitForClient(){
+    int start = millis();
+    while(Configurator::connected_devices == 0 && millis() - start <= 30000){
+#if DEBUG
+        Serial.println((millis()-start)/1000);
+#endif
+    delay(100);
+    }
+    return Configurator::connected_devices > 0;
 }
 void Configurator::Deinit()
 {
+    Configurator::ap_status = Configurator::APStatus::EXPIRED;
     Serial.println("Deinit Server");
     Configurator::server->end();
     WiFi.disconnect();
@@ -255,7 +279,8 @@ void Configurator::Deinit()
     Configurator::md5_pwd = "";
     vTaskDelete(Configurator::scanTaskHandler);
     vTaskDelete(Configurator::updateTaskHandler);
-    //ESP.restart();
+    vTaskDelete(Configurator::connectTaskHandler);
+    ESP.restart();
 }
 void Configurator::WiFiEventHandlerFunc(WiFiEvent_t event){
     switch (event)

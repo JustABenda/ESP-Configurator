@@ -23,6 +23,11 @@ void setup()
   Configurator::FIRMWARE_VERSION = 100;
   Configurator::Init("ESP Configurator", false, "http://jakubuvmed.cz/SMART_Wallbox/firmwareWB.json"); // Configurator::Deinit(); to turn off
   DatabaseHandler::Log("2022-80-30 19:35:00", "INFO", "STARTED");
+  switch (Configurator::getAPStatus())
+  {
+    case Configurator::APStatus::EXPIRED: Serial.println("Expired");break;
+    case Configurator::APStatus::OFF: Serial.println("OFF");break;
+  }
 }
 void loop()
 {

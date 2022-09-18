@@ -16,6 +16,12 @@ using namespace std;
 class Configurator
 {
 public:
+    enum APStatus {
+        RUNNING = 0,
+        EXPIRED = 1,
+        OFF = 2,
+        NONE = 3
+    };
     static void Init(std::string title_, bool login_, std::string FOTA_URL_); // Init The server
     static void Deinit();
     static std::string title;
@@ -25,6 +31,7 @@ public:
     static int FIRMWARE_VERSION;
     static bool login;
     static std::string STATUS;
+    static APStatus getAPStatus();
 
 private:
     static AsyncWebServer *server;
@@ -33,6 +40,7 @@ private:
     static std::string networks_string;
     static void WriteDataPrefs(std::string key, std::string data);
     static void WiFiEventHandlerFunc(WiFiEvent_t event);
+    static bool WaitForClient();
     static bool scanning;
     static TaskHandle_t scanTaskHandler;
     static TaskHandle_t updateTaskHandler;
@@ -51,4 +59,5 @@ private:
     static std::string ssid_c;
     static std::string pass_c;
     static int connected_devices;
+    static APStatus ap_status;
 };
