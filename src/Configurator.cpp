@@ -24,7 +24,10 @@ std::string Configurator::ssid_c = "";
 std::string Configurator::pass_c = "";
 int Configurator::connected_devices = 0;
 Configurator::APStatus Configurator::ap_status;
-void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Runs AsyncWebServer and handles communication
+void Configurator::Init(string title_, bool login_, std::string FOTA_URL){
+    Configurator::Init(title_, login_, FOTA_URL, 30000);
+}
+void Configurator::Init(string title_, bool login_, std::string FOTA_URL_, int mls_wait_for_client) // Runs AsyncWebServer and handles communication
 {
     Configurator::ap_status = Configurator::APStatus::NONE;
     esp_reset_reason_t reset_reason = esp_reset_reason();
@@ -246,7 +249,7 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
     WiFi.onEvent(Configurator::WiFiEventHandlerFunc);
     int waitAttemps = 1;
     while(waitAttemps <= 1){
-        if(Configurator::WaitForClient()){
+        if(Configurator::WaitForClient(mls_wait_for_client)){
             Configurator::ap_status = Configurator::APStatus::RUNNING;
             waitAttemps = 0;
             while(Configurator::connected_devices > 0) delay(100);
@@ -259,9 +262,9 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_) // Ru
 Configurator::APStatus Configurator::getAPStatus(){
     return Configurator::ap_status;
 }
-bool Configurator::WaitForClient(){
+bool Configurator::WaitForClient(int interval){
     int start = millis();
-    while(Configurator::connected_devices == 0 && millis() - start <= 30000){
+    while(Configurator::connected_devices == 0 && millis() - start <= interval){
 #if DEBUG
         Serial.println((millis()-start)/1000);
 #endif

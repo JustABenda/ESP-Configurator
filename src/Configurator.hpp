@@ -22,7 +22,9 @@ public:
         OFF = 2,
         NONE = 3
     };
-    static void Init(std::string title_, bool login_, std::string FOTA_URL_); // Init The server
+    //static void Init(std::string title_, bool login_, std::string FOTA_URL_); // Init The server
+    static void Init(std::string title_, bool login_, std::string FOTA_URL_);
+    static void Init(std::string title_, bool login_, std::string FOTA_URL_, int mls_wait_for_client); // Init The server
     static void Deinit();
     static std::string title;
     static std::string md5_pwd;
@@ -40,7 +42,7 @@ private:
     static std::string networks_string;
     static void WriteDataPrefs(std::string key, std::string data);
     static void WiFiEventHandlerFunc(WiFiEvent_t event);
-    static bool WaitForClient();
+    static bool WaitForClient(int interval);
     static bool scanning;
     static TaskHandle_t scanTaskHandler;
     static TaskHandle_t updateTaskHandler;
