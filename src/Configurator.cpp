@@ -66,7 +66,7 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_, int m
     WiFi.mode(WIFI_AP_STA);
     WiFi.disconnect();
     WiFi.softAPConfig(localIP, gateway, subnet);                                                                                 // Configure AP
-    WiFi.softAP("ApiCo Station", Configurator::ReadDataPrefs("ap_password", "4wclxNJ!YoT^yw6i76H5").c_str()); // Starts AP
+    WiFi.softAP("KPBSmartWallbox", Configurator::ReadDataPrefs("ap_password", "4wclxNJ!YoT^yw6i76H5").c_str()); // Starts AP
     xTaskCreate(&Configurator::ScanTaskCode, "scan_task", 2048, NULL, 1, &Configurator::scanTaskHandler);
     xTaskCreate(&Configurator::UpdateFirmware, "update_task", 3072, NULL, 1, &Configurator::updateTaskHandler);
     xTaskCreate(&Configurator::ConnectTaskCode, "connect_task", 3072, NULL, 1, &Configurator::connectTaskHandler);
