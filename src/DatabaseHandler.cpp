@@ -38,7 +38,7 @@ std::string DatabaseHandler::SELECT_ALL(){
     return "";
 }
 std::string DatabaseHandler::getLogs(std::string from_date, std::string to_date){
-    std::string exec_string = "SELECT rowid, * FROM 'device_data' WHERE datetime BETWEEN '" + from_date + "' AND '" + to_date + "'";
+    std::string exec_string = "SELECT rowid, * from device WHERE datetime_start BETWEEN '" + from_date + "' AND '" + to_date + "'";
     int rc = sqlite3_prepare_v2(DatabaseHandler::database, exec_string.c_str(), 1000, &DatabaseHandler::resource, &DatabaseHandler::tail);
     if(rc != SQLITE_OK){Serial.println("Failed executing command");return "";}
     std::string result = "";
@@ -51,10 +51,15 @@ std::string DatabaseHandler::getLogs(std::string from_date, std::string to_date)
         response += "|";
         response += ((const char *)sqlite3_column_text(DatabaseHandler::resource, 2));
         response += "|";
-        response += ((const char *)sqlite3_column_text(DatabaseHandler::resource, 3));
+        response += (to_string(sqlite3_column_double(DatabaseHandler::resource, 3)).c_str());
+        response += "|";
+        response += (to_string(sqlite3_column_double(DatabaseHandler::resource, 4)).c_str());
+        response += "|";
+        response += (to_string(sqlite3_column_double(DatabaseHandler::resource, 5)).c_str());
         result += response + "@";
     }
     sqlite3_finalize(DatabaseHandler::resource);
+    Serial.println(result.c_str());
     return result;
 }
 const char* DatabaseHandler::data = "Callback function called";

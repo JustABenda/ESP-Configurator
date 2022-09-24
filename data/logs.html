@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="cs">
 
 <head>
     <link rel="icon" href="./imgs/favicon.png">
@@ -14,26 +14,44 @@
 </head>
 
 <body
-    onload="InitTime();">
+    onload="InitTime();SyncTime();setInterval(updateClock, 1000);updateClock();">
+    <div id="nav_bar">
+        <div id="clock"><div id="center">2022/09/24 12:00:00</div></div>
+        <div id="nav_item_selected" onclick="window.location.href = './logs?mdp=' + findGetParameter('mdp');">
+            <div id="center">Historie</div>
+        </div><div id="nav_space"></div>
+        <div id="nav_item" onclick="window.location.href = './index?mdp=' + findGetParameter('mdp');">
+            <div id="center">Nastavení</div>
+        </div><div id="nav_space"></div>
+        <!--<div id="nav_item">
+            <div id="center" onclick="window.location.href = './prefs?mdp=' + findGetParameter('mdp');">Preferences</div>
+        </div><div id="nav_space"></div>-->
+    </div>
     <form id="center_form_sf" style="font-size: 2vh;">
-        <h3>Device Logs: <span id="firmware"></span></h3>
+        <h3>Historie Dobíjení: <span id="firmware"></span></h3>
         <hr>
-        From<br><input type="datetime-local" id="from_date" onchange="UpdateTable()"><br>to<br>
-        <input type="datetime-local" id="to_date" onchange="UpdateTable()">
+        Od<br><input type="datetime-local" id="from_date" onchange="UpdateTable()" ><br>do<br>
+        <input type="datetime-local" id="to_date" onchange="UpdateTable()" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}">
         <br><br>
         <div style="max-height: 50%;height: 50%;width: 100%;overflow:scroll;">
             <table id="record_table">
                 <tr>
                     <th>ID</th>
-                    <th>DateTime</th>
-                    <th>Action</th>
-                    <th>Information</th>
+                    <th>Začátek Dobíjení</th>
+                    <th>Konec Dobíjení</th>
+                    <th>Elektroměr před</th>
+                    <th>Elektroměr po</th>
+                    <th>Spotřeba</th>
                 </tr>
             </table>
         </div>
         <br>
-        <input type="button" id="download_btn" value="Download CSV" onclick="DownloadCSV()">
+        <input type="button" id="download_btn" value="Stáhnout CSV" onclick="DownloadCSV()">
+        </br><hr>
     </form>
+    <div id="bottom_bar">
+        <center id="center"> © KPB INTRA s.r.o. </center>
+    </div>
 </body>
 
 </html>

@@ -77,6 +77,10 @@ void Configurator::Init(string title_, bool login_, std::string FOTA_URL_, int m
     Configurator::server->on("/", HTTP_GET, [](AsyncWebServerRequest *request)
                              { 
                                 if(Configurator::login) request->send(SPIFFS, "/login.html", "text/html");
+                                else request->send(SPIFFS, "/logs.html", "text/html"); });
+    Configurator::server->on("/index", HTTP_GET, [](AsyncWebServerRequest *request)
+                             { 
+                                if(Configurator::login) request->send(SPIFFS, "/login.html", "text/html");
                                 else request->send(SPIFFS, "/index.html", "text/html"); });
     Configurator::server->on("/title", HTTP_GET, [](AsyncWebServerRequest *request)
                              { request->send_P(200, "text/plain", Configurator::title.c_str()); });

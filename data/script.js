@@ -6,6 +6,23 @@ let signal2 = " data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAQAAACQ9R
 let signal3 = " data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAQAAACQ9RH5AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAAmJLR0QA/4ePzL8AAAAJcEhZcwAAZZQAAGWUAe4tZ2YAAAAHdElNRQfmCAQHEiti3BG/AAAEgElEQVRYw8WZT2wUVRzHPzOz2+5KiylNCQYhaTEF00OpbBsN8dDGaLxoNBzxhNDEGDFKNKkHDtLE6MV68KDG4B/QQ0ETD6ChifiHiq1rg4bUYBNbFSgCNm0p+2dmnod9+2ZmO7s7szDr92VnfzPvzfvO7/1+897v90ajiAcZZActJIhjoKOhgTwW4EjlIVz/QhYbkzw3ucrPHOYbbKf5Gl7kT9UwynKRIZod2hHydaEVCEze4o4C8f460goEOZ4FjW6OsUXqfolv+YsMeUxsbGyEtJbbzppLKh61VbKOjoZBDIMGErTSw92ylxl2wevqSca5n1gAB6oFGg30Ma64RuA7KV5jICJSBwP8K9kmYEaK37M2cuL1/CLZ5nSa5MXrZCInzrIspTU6jVLMuF/siGCRlVJcJy7FvMt3oyPOSymmo6uL0RMLLCnpDnH0A11CXJz67bpoXFRPc4ijpy2ot4q4HhBKvf9NY+pN7NK4nnCGmvoSu8a1tmWwkTiG7MjGJBveULFQXh2nnT766GAtcTTAxmSFOX7kDL+TC6yxFlzjNh7icR5go9TViz1c4gyfMcaVirTCeyIQvFtB93XsZZxcgGjqLE/TUrYfg09V26rEGgOcChEO5vmS/jJ9hSBu4mXmfYPUFZZYJoPlUzvPSyrA8BJ/UmxT2cZ3McxTJZ7/N2kmucBVsugkaaWDHrazyWX79QyzlVe4XKnzSho/VzKIP/ACXSpmcdDAFvZyusQLDvhofDTYUHcxqeqneYa2iuOzjn2cV+3TdPsQHwlq4x2kEZgcYRtBsI2jmAjS9PrU6sGJIcXXvOokWhIJNnAPnWws5kEKzRzkc3p8+9L5OJhzAUyyi0XXnJQkxcOk2MSdaNxglgm+YpIbsn6JQzRws/rgBJlAnCfu57jKBpyywBc84jujldU4DHELB/mn7MRxnWFaqxJ/VAvx/qqz1oHgxGHW49NMuc5yLLDgWY+mOBW8szDr8RSDvEM3cJ7jTHAZ2EAvT9AFnGPQ82D+CLk6OejlBCO0e6618yYnfN/bUuh8uNrG7wUMCZpUtuUg7rsk+BF/4LzHImRkvexzLa+SsaAIMIGUQzObgTmWwtDdepQ5wChjjDFa+waGHdLGACm1gSGYIRX4Po3D8i5Ld+K+EA+7mw4ld7C7Fn1rGepGOj3nnT6hQTWIWjTOl4SwVwL7tLMlWxOxzSiL6myR0Rp2E1zEYTLlkwwxi4XFLEOcDEFYNK2IuYiDw+RtxtgOTPFbqLxJ7bjE1HaIEcqvBdNMh2hfgObsMemYUozXYVNCU/O8qSuPTAYIXW4VBkkpZXQVpLWSiJw4oYKjJV2lGfeyM3LinSo6vwhvqNn6HI+S9Hx3uX3QaeYxfpVMNoc0ujjGVlm9wFnmMbGwsNTHgeJPRg4UP+2U7hQJz6eiQjEwiJGgic3cp9KCaZ4EGCQbOPu9HSXDvgJ/ktfqSJ1h2HHjJM/zR11oLzBYoHWskmIP/bSRwMBQn3OKLYTHll6p9CjUseAdFhY5VrjGT7xPunDrf++rb9WQOZ8UAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDIyLTA4LTA0VDA3OjE4OjIwKzAwOjAwElNgYQAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyMi0wOC0wNFQwNzoxODoyMCswMDowMGMO2N0AAAAZdEVYdFNvZnR3YXJlAHd3dy5pbmtzY2FwZS5vcmeb7jwaAAAAAElFTkSuQmCC";
 let signal4 = " data:image/png;base64,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";
 
+function updateClock(){
+    today = new Date();
+    yy = today.getFullYear();
+    mm = today.getMonth()+1;
+    dd = today.getDate();
+    hh = today.getHours();
+    mimi = today.getMinutes();
+    secs = today.getSeconds();
+    mm = ("" + mm).length > 1 ? mm : "0" + mm;
+    dd = ("" + dd).length > 1 ? dd : "0" + dd;
+    hh = ("" + hh).length > 1 ? hh : "0" + hh;
+    mimi = ("" + mimi).length > 1 ? mimi : "0" + mimi;
+    secs = ("" + secs).length > 1 ? secs : "0" + secs;
+    
+    today = yy + "/" + mm + "/" + dd + " " + hh + ":" + mimi + ":" + secs;
+    document.getElementById("clock").children[0].innerHTML = today;
+}
 function checkSearch() {
     wifi_box = document.getElementById("wifi_box");
     loader = document.getElementById("loading");
@@ -30,34 +47,40 @@ function checkSearch() {
 function InitTime(){
     from_date = document.getElementById("from_date");
     to_date = document.getElementById("to_date");
-    today = new Date().toLocaleString();
-    today = today.split(", ");
-    today[0] = today[0].replaceAll("/", "-");
-    today[2] = today[1].split(" ")[1];
-    today[1] = today[1].split(" ")[0];
-    today[1] = today[2] == "AM" ? today[1] : (parseInt(today[1].split(":")[0])+12).toString() + ":" + today[1].split(":")[1] + ":" + today[1].split(":")[2];
-    temp_t = today[0].split("-");
-    temp_t = [temp_t[2], temp_t[0], temp_t[1]];
-    today[0] = "";
-    for(i = 0; i < temp_t.length; i++){
-        tmp = (temp_t[i].length < 2 ? "0" + temp_t[i] : temp_t[i]);
-        today[0] = today[0] + (tmp.length < 2 ? "0" + tmp : tmp) + "-";
-    }
-    today[0] = today[0].slice(0, -1);
-    temp_t = today[1].split(":");
-    today[1] = "";
-    for(i = 0; i < temp_t.length-1; i++){
-        today[1] = today[1] + (temp_t[i].length < 2 ? "0" + temp_t[i] : temp_t[i]) + ":";
-    }
-    today[1] = today[1].slice(0, -1);
-    today = today[0] + "T" + today[1];
+    today = new Date();
+    yy = today.getFullYear();
+    mm = today.getMonth()+1;
+    dd = today.getDate();
+    hh = today.getHours();
+    mimi = today.getMinutes();
+    mm = ("" + mm).length > 1 ? mm : "0" + mm;
+    dd = ("" + dd).length > 1 ? dd : "0" + dd;
+    hh = ("" + hh).length > 1 ? hh : "0" + hh;
+    mimi = ("" + mimi).length > 1 ? mimi : "0" + mimi;
+    
+    today = yy + "-" + mm + "-" + dd + "T" + hh + ":" + mimi;
+
+    weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    yy = weekAgo.getFullYear();
+    mm = weekAgo.getMonth()+1;
+    dd = weekAgo.getDate();
+    hh = weekAgo.getHours();
+    mimi = weekAgo.getMinutes();
+    mm = ("" + mm).length > 1 ? mm : "0" + mm;
+    dd = ("" + dd).length > 1 ? dd : "0" + dd;
+    hh = ("" + hh).length > 1 ? hh : "0" + hh;
+    mimi = ("" + mimi).length > 1 ? mimi : "0" + mimi;
+    
+    weekAgo = yy + "-" + mm + "-" + dd + "T" + hh + ":" + mimi;
     //Set Values
     from_date.min = "2000-01-01T00:00";
-    from_date.value = "2000-01-01T00:00";
+    from_date.value = weekAgo;
     from_date.max = today;
     to_date.min = "2000-01-01T00:00";
     to_date.value = today;
     to_date.max = today;
+    console.log(today);
 }
 function ShowSearch() {
     loader = document.getElementById("loading");
@@ -328,7 +351,7 @@ function DownloadCSV(){
             for(i = 0; i < table.length; i++){
                 table[i] = table[i].split("|");
             }
-            csv_data = "";
+            csv_data = "ID, Start, Konec, Pred [kWh], Po [kWh], Spotreba [kWh],\n";
             table.forEach(function (row, index) {
                 row.forEach(function (item, index) {
                     csv_data = csv_data + item + ",";
@@ -384,37 +407,28 @@ function findGetParameter(parameterName) {
     return result;
 }
 function CreateTableElements(data_rec){
-    pattern = "<tr><th>ID</th><th>DT</th><th>AC</th><th>IF</th></tr>";
-    top = "<tr><th>ID</th><th>DateTime</th><th>Action</th><th>Information</th></tr>";
-    data_all = pattern.replace("ID", "ID").replace("DT", "DateTime").replace("AC", "Action").replace("IF", "Information");
+    pattern = "<tr><th>ID</th><th>DTS</th><th>DTE</th><th>KWHS</th><th>KWHE</th><th>KWHC</th></tr>";
+    top = "<tr><th>ID</th><th>Začátek Dobíjení</th><th>Konec Dobíjení</th><th>Elektroměr před</th><th>Elektroměr po</th><th>Spotřeba</th></tr>";
+    data_all = pattern.replace("ID", "ID").replace("DTS", "Začátek Dobíjení").replace("DTE", "Konec Dobíjení").replace("KWHS", "Elektroměr před").replace("KWHE", "Elektroměr po").replace("KWHC", "Spotřeba");
     data_rec.forEach(function (item, index) {
-        data_all = data_all + pattern.replace("ID", item[0]).replace("DT", item[1]).replace("AC", item[2]).replace("IF", item[3]);
+        //data_all = data_all + pattern.replace("ID", item[0]).replace("DT", item[1]).replace("AC", item[2]).replace("IF", item[3]);
+        data_all += data_all = pattern.replace("ID", item[0]).replace("DTS", item[1]).replace("DTE", item[2]).replace("KWHS", item[3]).replace("KWHE", item[4]).replace("KWHC", item[5]);
     });
     return data_all;
 }
 function SyncTime(){
-    today = new Date().toLocaleString();
-    today = today.split(", ");
-    today[0] = today[0].replaceAll("/", "-");
-    today[2] = today[1].split(" ")[1];
-    today[1] = today[1].split(" ")[0];
-    today[1] = today[2] == "AM" ? today[1] : (parseInt(today[1].split(":")[0])+12).toString() + ":" + today[1].split(":")[1] + ":" + today[1].split(":")[2];
-    temp_t = today[0].split("-");
-    temp_t = [temp_t[2], temp_t[0], temp_t[1]];
-    today[0] = "";
-    for(i = 0; i < temp_t.length; i++){
-        tmp = (temp_t[i].length < 2 ? "0" + temp_t[i] : temp_t[i]);
-        today[0] = today[0] + (tmp.length < 2 ? "0" + tmp : tmp) + "-";
-    }
-    today[0] = today[0].slice(0, -1);
-    temp_t = today[1].split(":");
-    today[1] = "";
-    for(i = 0; i < temp_t.length; i++){
-        today[1] = today[1] + (temp_t[i].length < 2 ? "0" + temp_t[i] : temp_t[i]) + ":";
-    }
-    today[1] = today[1].slice(0, -1);
-    today = today[0] + "T" + today[1];
-    console.log(today);
+    today = new Date();
+    yy = today.getFullYear();
+    mm = today.getMonth()+1;
+    dd = today.getDate();
+    hh = today.getHours();
+    mimi = today.getMinutes();
+    mm = ("" + mm).length > 1 ? mm : "0" + mm;
+    dd = ("" + dd).length > 1 ? dd : "0" + dd;
+    hh = ("" + hh).length > 1 ? hh : "0" + hh;
+    mimi = ("" + mimi).length > 1 ? mimi : "0" + mimi;
+    
+    today = yy + "-" + mm + "-" + dd + "T" + hh + ":" + mimi;
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {

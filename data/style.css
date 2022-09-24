@@ -1,10 +1,81 @@
 html,
 body {
-    background-color: #f2f2f2;
+    background: #e0e0e0 url('./imgs/bkg.gif');
     width: 100%;
-    font: 2vh Arial, sans-serif;
+    font-family: Verdana, Arial, Helvetica, sans-serif !important;
 }
-
+#nav_bar{
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 4.6%;
+    background-color: #1B1C1D;
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
+    font-size: 1.5vh;
+}
+#nav_item{
+    color: #f2f2f2;
+    position: relative;
+    height: 100%;
+    margin: 0px 0px 0px 0px;
+    padding: 0% 2.5% 0% 2.5%;
+    float: right;
+    top: 0px;
+    width: auto;
+    background-color: transparent;
+    display: inline-block;
+    transition: ease-in-out 0.3s;
+    cursor: pointer;
+}
+#clock{
+    color: #f2f2f2;
+    position: relative;
+    height: 100%;
+    margin: 0px 0px 0px 0px;
+    padding: 0% 2.5% 0% 2.5%;
+    float: left;
+    top: 0px;
+    width: auto;
+    background-color: transparent;
+    display: inline-block;
+    transition: ease-in-out 0.3s;
+    cursor: pointer;
+}
+#nav_item_selected{
+    color: #f2f2f2;
+    position: relative;
+    height: 100%;
+    margin: 0px 0px 0px 0px;
+    padding: 0% 2.5% 0% 2.5%;
+    float: right;
+    top: 0px;
+    width: auto;
+    background-color: #3D3E3F;
+    display: inline-block;
+    transition: ease-in-out 0.3s;
+}
+#nav_item #center, #nav_item_selected #center, #clock #center{
+    position: relative;
+    top: 27.5%;
+}
+#nav_space{
+    color: transparent;
+    position: relative;
+    height: 100%;
+    margin: 0px 0px 0px 0px;
+    float: right;
+    top: 0px;
+    width: 0.05%;
+    background-color: #2D2E2F;
+    display: inline-block;
+    transition: ease-in-out 0.3s;
+}
+#nav_item:hover{
+    background-color: #ffffff14;
+    transition: ease-in-out 0.3s;
+}
 #login_form,
 #preferences_form {
     position: absolute;
@@ -22,7 +93,11 @@ body {
     top: 12%;
     height: auto;
     width: 30%;
-    left: 35%;
+    left: 33%;
+    padding: 0px 1% 1% 1%;
+    border-radius: 5px 5px;
+    box-shadow: 5px 5px 5px #888888;
+    background-color: #f2f2f2;
 }
 
 #center_form_sf {
@@ -30,7 +105,11 @@ body {
     top: 12%;
     height: 80%;
     width: 30%;
-    left: 35%;
+    left: 33%;
+    padding: 0px 1% 1% 1%;
+    border-radius: 5px 5px;
+    box-shadow: 5px 5px 5px #888888;
+    background-color: #f2f2f2;
 }
 
 #center_form #wifi_box a,
@@ -187,7 +266,20 @@ table {
     border-collapse: collapse;
     width: 100%;
 }
-  
+#bottom_bar{
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    height: 2.5%;
+    color: #f2f2f2;
+    font-size: 1.25vh;
+    background-color: #000000;
+}
+#bottom_bar #center{
+    position: relative;
+    top: 27.5%;
+}
 td, th {
     border: 1px solid #dddddd;
     text-align: left;

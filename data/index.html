@@ -10,32 +10,44 @@
     <meta name="author" content="Filip Benda" />
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-    <title>Networks</title>
+    <title>Settings</title>
 </head>
 
 <body
-    onload="UpdateFirmwareVersion();DisableControls();setInterval(checkSearch, 2000);OnLoadDependsOnLogin(document.getElementById('prefs_btn'));SyncTime();">
+    onload="UpdateFirmwareVersion();DisableControls();setInterval(checkSearch, 2000);OnLoadDependsOnLogin(document.getElementById('prefs_btn'));SyncTime();setInterval(updateClock, 1000);updateClock();">
+    <div id="nav_bar">
+        <div id="clock"><div id="center">2022/09/24 12:00:00</div></div>
+        <div id="nav_item" onclick="window.location.href = './logs?mdp=' + findGetParameter('mdp');">
+            <div id="center">Historie</div>
+        </div><div id="nav_space"></div>
+        <div id="nav_item_selected" onclick="window.location.href = './index?mdp=' + findGetParameter('mdp');">
+            <div id="center">Nastavení</div>
+        </div><div id="nav_space"></div>
+        <!--<div id="nav_item">
+            <div id="center" onclick="window.location.href = './prefs?mdp=' + findGetParameter('mdp');">Preferences</div>
+        </div><div id="nav_space"></div>-->
+    </div>
     <form id="center_form">
-        <h3>Firmware Version: <span id="firmware"></span></h3>
-        <h1>Connected Network</h1>
+        <h3>Verze Firmwaru: <span id="firmware"></span></h3>
+        <h1>Připojená Síť</h1>
         <hr>
         <span id="wifi_box_connected">
         </span>
-        <h1>Available Networks<input type="button" id="submit" value="Scan" onclick="ScanConnected();ShowSearch();">
+        <h1>Dostupné Sítě<input type="button" id="submit" value="Hledat" onclick="ScanConnected();ShowSearch();">
         </h1>
         <div id="loading" class="loadingOff"></div>
         <hr>
         <span id="wifi_box">
         </span>
-        <input type="button" id="update_btn" class="button" value="Update Firmware"
+        <input type="button" id="update_btn" class="button" value="Updatovat Firmware"
             onclick="UpdateFirmware();setInterval(Updating, 1000)"><input type="button" id="disconnect_btn"
-            class="button" value="Disconnect"
-            onclick="Send('/disconnect');DisableControls();document.getElementById('wifi_box_connected').innerHTML = '';document.getElementById('wifi_box').innerHTML = '';"><input
-            type="button" class="button" value="Preferences" id="prefs_btn"
-            onclick="window.location.href = './prefs?mdp=' + findGetParameter('mdp');">
-            <input type="button" class="button" value="Logs" id="logs_btn" onclick="window.location.href = './logs?mdp=' + findGetParameter('mdp');">
-            <input type="button" class="button" value="Sync Time" id="sync_btn" onclick="SyncTime();">
+            class="button" value="Odpojit"
+            onclick="Send('/disconnect');DisableControls();document.getElementById('wifi_box_connected').innerHTML = '';document.getElementById('wifi_box').innerHTML = '';">
+            <input type="button" class="button" value="Synchronizovat Čas" id="sync_btn" onclick="SyncTime();">
     </form>
+    <div id="bottom_bar">
+        <center id="center"> © KPB INTRA s.r.o. </center>
+    </div>
     <div id="overlay" class="overlay">
         <h1 id="overlay_status"></h1>
     </div>
