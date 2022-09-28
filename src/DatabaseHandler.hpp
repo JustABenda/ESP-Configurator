@@ -8,6 +8,7 @@
 #include "SPIFFS.h"
 #include <Preferences.h>
 #include <sqlite3.h>
+#include "Utils.hpp"
 
 using namespace std;
 class DatabaseHandler
@@ -15,7 +16,7 @@ class DatabaseHandler
 public:
     static void Init();
     static void Execute(std::string command);
-    static void Log(std::string time, std::string action, std::string params);
+    static void Log(std::string time_from, std::string time_to, double kwh_s, double kwh_e, double kwh_sum);
     static std::string SELECT_ALL();
     static std::string getLogs(std::string from_date, std::string to_date);
 private:

@@ -351,11 +351,12 @@ function DownloadCSV(){
             for(i = 0; i < table.length; i++){
                 table[i] = table[i].split("|");
             }
-            csv_data = "ID, Start, Konec, Pred [kWh], Po [kWh], Spotreba [kWh],\n";
+            csv_data = "ID, Start, Konec, Pred [kWh], Po [kWh], Spotreba [kWh]\n";
             table.forEach(function (row, index) {
                 row.forEach(function (item, index) {
                     csv_data = csv_data + item + ",";
                 });
+                csv_data = csv_data.substring(0, csv_data.length - 1);
                 csv_data = csv_data + "\n";
             });
             CSVFile = new Blob([csv_data], {type: "text/csv"});

@@ -14,8 +14,8 @@ void DatabaseHandler::Execute(std::string command){
     int rc = sqlite3_exec(DatabaseHandler::database, command.c_str(), DatabaseHandler::callback, (void*)DatabaseHandler::data, &errorMSG);
     if(rc != SQLITE_OK){Serial.print("Failed executing command: ");Serial.println(errorMSG);return;}
 }
-void DatabaseHandler::Log(std::string time, std::string action, std::string params){
-    std::string cmd = "INSERT INTO 'device_data' ('datetime', 'action', 'information') VALUES ('" + time + "', '" + action + "', '" + params + "')";
+void DatabaseHandler::Log(std::string time_from, std::string time_to, double kwh_s, double kwh_e, double kwh_sum){
+    std::string cmd = "INSERT INTO 'device' ('datetime_start', 'datetime_end',  'kwh_start', 'kwh_end', 'kwh_consumed') VALUES ('" + time_from + "', '" + time_to + "', '" + to_string(kwh_s) + "', '" + to_string(kwh_e) + "', '" + to_string(kwh_sum) + "')";
     DatabaseHandler::Execute(cmd);
 }
 std::string DatabaseHandler::SELECT_ALL(){
@@ -51,11 +51,17 @@ std::string DatabaseHandler::getLogs(std::string from_date, std::string to_date)
         response += "|";
         response += ((const char *)sqlite3_column_text(DatabaseHandler::resource, 2));
         response += "|";
-        response += (to_string(sqlite3_column_double(DatabaseHandler::resource, 3)).c_str());
+        std::string power = to_string(sqlite3_column_double(DatabaseHandler::resource, 3));
+        power = Utilities::tokenize(power, '.')[0] + "." + Utilities::tokenize(power, '.')[1][0] + Utilities::tokenize(power, '.')[1][1];
+        response += (power).c_str();
         response += "|";
-        response += (to_string(sqlite3_column_double(DatabaseHandler::resource, 4)).c_str());
+        power = to_string(sqlite3_column_double(DatabaseHandler::resource, 4));
+        power = Utilities::tokenize(power, '.')[0] + "." + Utilities::tokenize(power, '.')[1][0] + Utilities::tokenize(power, '.')[1][1];
+        response += (power).c_str();
         response += "|";
-        response += (to_string(sqlite3_column_double(DatabaseHandler::resource, 5)).c_str());
+        power = to_string(sqlite3_column_double(DatabaseHandler::resource, 5));
+        power = Utilities::tokenize(power, '.')[0] + "." + Utilities::tokenize(power, '.')[1][0] + Utilities::tokenize(power, '.')[1][1];
+        response += (power).c_str();
         result += response + "@";
     }
     sqlite3_finalize(DatabaseHandler::resource);
